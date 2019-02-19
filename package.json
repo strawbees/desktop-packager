@@ -1,19 +1,24 @@
 {
-  "name": "desktop-packager",
-  "version": "0.1.0",
-  "description": "Command line tool to automate the building, packaging and deploying of Strawbees desktop apps",
-  "main": "cli.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/strawbees/desktop-packager.git"
-  },
-  "author": "Strawbees",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/strawbees/desktop-packager/issues"
-  },
-  "homepage": "https://github.com/strawbees/desktop-packager#readme"
+    "name": "desktop-packager",
+    "version": "0.1.0",
+    "description": "Command line tool to automate the building, packaging and deploying of Strawbees desktop apps",
+    "main": "cli.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/strawbees/desktop-packager.git"
+    },
+    "license": "MIT",
+    "bin": {
+        "strawbees-desktop-packager": "cli.js"
+    },
+    "bugs": {
+        "url": "https://github.com/strawbees/desktop-packager/issues"
+    },
+    "homepage": "https://github.com/strawbees/desktop-packager#readme",
+    "dependencies": {
+        "commander": "^2.19.0"
+    }
 }

@@ -29,7 +29,7 @@ Run `npm install --save @strawbees/desktop-packager` to install and save the app
 
 On your NWJS project folder, identify what is the folder that contains the app (usually `src`) and make sure it has a `package.json` inside.
 
-Assuming this folder is `src` on the root of your NWJS project, navigate to your NWJS project folder and run `desktop-packager package --source ./src --output ./dist`. This will identify your platform and run all the steps described above.
+Assuming this folder is `src` on the root of your NWJS project, navigate to your NWJS project folder and run `strawbees-desktop-packager package`. This will identify your platform and run all the steps described above.
 
 You can also run them separatedly. Check the API reference for more details.
 
