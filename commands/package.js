@@ -2,11 +2,18 @@ const path = require('path')
 const fs = require('fs').promises
 const packageWindowsInstaller = require('./package-win32')
 const packageDarwinDmg = require('./package-darwin')
+const packageLinux = require('./package-linux')
 const zipdir = require('../utils/zipdir')
 
 const addExtension = (platform) => {
 	if (platform == 'win32') {
 		return '.exe'
+	}
+	if (platform == 'darwin') {
+		return '.dmg'
+	}
+	if (platform == 'linux') {
+		return '.zip'
 	}
 }
 
@@ -34,10 +41,11 @@ module.exports = async (src, dist, platform, architecture) => {
 	}
 	if (platform == 'darwin') {
 		// Create macos dmg
-		packageDarwinDmg(src, outputInstallerName)
+		packageDarwinDmg(src, outputInstallerPath)
 	}
 	if (platform == 'linux') {
-		console.log('Linux packaging')
+		// Zip bundled app to distribute
+		packageLinux(src, outputInstallerPath)
 	}
 
 	// Zip the source code

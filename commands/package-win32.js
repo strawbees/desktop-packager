@@ -14,12 +14,19 @@ const bakeNsiFile = async (appPkg) => {
 		.split('{{APP_PUBLISHER}}').join(appPkg.publisher)
 		.split('{{APP_URL_SCHEME}}').join(appPkg['url-scheme'])
 		.split('{{RELATIVE_BUILD_PATH}}').join(path.relative(assetsFolder, assetsFolder))
-	await fs.writeFile(nsiFilePath, template)
+	return  fs.writeFile(nsiFilePath, template)
 }
 
 const runNSIS = async () => {
-	execute(async ({ exec }) => {
-		await exec(`makensis.exe /V4 ${nsiFilePath}`)
+	return new Promise((resolve, reject) => {
+		execute(async ({ exec }) => {
+			try {
+				await exec(`makensis.exe /V4 ${nsiFilePath}`)
+				resolve()
+			} catch(err) {
+				reject(err)
+			}
+		})
 	})
 }
 
@@ -29,10 +36,6 @@ module.exports = async (src, outputInstallerPath) => {
 	const installerName = `${appPkg['executable-name']}-installer.exe`
 	await bakeNsiFile(appPkg)
 	await runNSIS()
-	// Run this to test if you are not running windows
-	// execute(async ({ exec }) => {
-	// 	await exec(`echo "TEST 123" > "${path.resolve(assetsFolder, installerName)}"`)
-	// })
 	await fs.copyFile(
 		path.resolve(assetsFolder, installerName),
 		outputInstallerPath
