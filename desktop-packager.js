@@ -3,9 +3,19 @@ const program = require('commander')
 const path = require('path')
 const pkg = require('./package.json')
 
+const description = `Packages NWJS application.
+
+Default command:
+  prepare-to-sign
+
+Default options:
+  -s, --source: ./src
+  -o, --output: ./dist
+  -p, --platform: process.platform
+  -a, --architecture: process.arch`
 
 program
-	.description('Packages NWJS application')
+	.description(description)
 	.version(pkg.version, '-v, --version')
 	.option('-s, --source <path>', 'application source code folder')
 	.option('-o, --output <path>', 'build files ouput folder')

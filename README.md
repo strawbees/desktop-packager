@@ -27,12 +27,33 @@ Run `npm install --save @strawbees/desktop-packager` to install and save the app
 
 ## Usage
 
-On your NWJS project folder, identify what is the folder that contains the app (usually `src`) and make sure it has a `package.json` inside.
+```
+Usage: desktop-packager [options] [command]
 
-Assuming this folder is `src` on the root of your NWJS project, navigate to your NWJS project folder and run `strawbees-desktop-packager package`. This will identify your platform and run all the steps described above.
+Packages NWJS application.
 
-You can also run them separatedly. Check the API reference for more details.
+Default command:
+  prepare-to-sign
 
-## API Reference
+Default options:
+  -s, --source: ./src
+  -o, --output: ./dist
+  -p, --platform: process.platform
+  -a, --architecture: process.arch
 
-TODO.
+Options:
+  -v, --version                      output the version number
+  -s, --source <path>                application source code folder
+  -o, --output <path>                build files ouput folder
+  -p, --platform <platform>          Specify the platform
+  -a, --architecture <architecture>  Specify the architecture
+  -h, --help                         output usage information
+
+Commands:
+  bundle                             bundles NWJS source code
+  deploy                             deploy packaged app
+  package                            packages bundled NWJS source code
+  sign                               sign binaries
+  prepare-to-sign                    bundles and packages the app
+  help [cmd]                         display help for [cmd]
+```
