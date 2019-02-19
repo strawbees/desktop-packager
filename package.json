@@ -16,7 +16,7 @@
         "strawbees-desktop-packager-bundle": "desktop-packager-bundle.js",
         "strawbees-desktop-packager-deploy": "desktop-packager-deploy.js",
         "strawbees-desktop-packager-package": "desktop-packager-package.js",
-        "strawbees-desktop-packager-prepare-to-sign": "desktop-packager-prepare-to-sign.js",
+        "strawbees-desktop-packager-prepare": "desktop-packager-prepare.js",
         "strawbees-desktop-packager-sign": "desktop-packager-sign.js"
     },
     "bugs": {
