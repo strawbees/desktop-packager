@@ -12,6 +12,6 @@ program
 	.command('deploy', 'deploy packaged app')
 	.command('package', 'packages bundled NWJS source code')
 	.command('sign', 'sign binaries')
-	.command('prepare-to-sign', 'bundles and packages the app')
+	.command('prepare', 'bundles and packages the app')
 
 program.parse(process.argv)

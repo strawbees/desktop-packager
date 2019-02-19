@@ -41,6 +41,6 @@ Commands:
   deploy           deploy packaged app
   package          packages bundled NWJS source code
   sign             sign binaries
-  prepare-to-sign  bundles and packages the app
+  prepare          bundles and packages the app
   help [cmd]       display help for [cmd]
 ```
