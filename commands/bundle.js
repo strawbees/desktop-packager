@@ -6,15 +6,8 @@ const download = require('../utils/download')
 const unzip = require('../utils/unzip')
 const execute = require('../utils/execute')
 
-const getPackage = async (src) => {
-	// retrive the app package
-	const pkgPath = path.resolve(src, 'package.json')
-	const pkgFile = (await fs.readFile(pkgPath)).toString()
-	return JSON.parse(pkgFile)
-}
-
 const build = async (src, output) => {
-	const appPkg = getPackage(src)
+	const appPkg = require(path.resolve(src, 'package.json'))
 	// bundle source code
 	return new Promise((resolve, reject) => {
 		NWB.commands.nwbuild(
@@ -39,6 +32,18 @@ const build = async (src, output) => {
 	})
 }
 
+const writeVersion = async (src, output) => {
+	const srcPackagePath = path.resolve(src, 'package.json')
+	const outputPackagePath = path.resolve(output, 'bundle', 'package.json')
+	const srcPackage = require(srcPackagePath)
+	const outputPackage = require(outputPackagePath)
+	outputPackage.version = srcPackage.version
+	await fs.writeFile(
+		outputPackagePath,
+		JSON.stringify(outputPackage, null, '\t')
+	)
+}
+
 const downloadResourceHacker = async () => {
 	await rimraf(path.resolve(__dirname, 'rh'))
 	await fs.mkdir(path.resolve(__dirname, 'rh'))
@@ -59,7 +64,7 @@ const resourceHacker = async (output) => {
 	// it manually
 	// download and unzinp Resource Hacker
 	await downloadResourceHacker()
-	const appPkg = getPackage(output + '/bundle')
+	const appPkg = require(path.resolve(output, 'bundle', 'package.json'))
 	execute(({ exec }) => {
 		return exec(
 			`"${path.resolve(__dirname, 'rh', 'ResourceHacker.exe')}" ` +
@@ -94,7 +99,7 @@ const registerUrlSchemeDarwin = async (output) => {
 	// Register the app url scheme, by modifying the Info.plist
 	// eslint-disable-next-line global-require,import/no-extraneous-dependencies
 	const plist = require('plist')
-	const appPkg = getPackage(output)
+	const appPkg = require(path.resolve(output, 'package.json'))
 	const plistPath = path.resolve(output, 'app', `${appPkg['executable-name']}.app`, 'Contents', 'Info.plist')
 	const plistObject = plist.parse((await fs.readFile(plistPath, 'utf8')).toString())
 	plistObject.CFBundleURLTypes.push({
@@ -106,6 +111,7 @@ const registerUrlSchemeDarwin = async (output) => {
 
 module.exports = async (src, output, platform, architecture) => {
 	await build(src, output)
+	await writeVersion(src, output)
 	if (platform == 'win32') {
 		await resourceHacker(output)
 	}

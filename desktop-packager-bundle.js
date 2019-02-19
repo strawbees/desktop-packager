@@ -5,7 +5,7 @@ const bundle = require('./commands/bundle')
 
 program
 	.option('-s, --source <path>', 'application source code folder')
-	.option('-o, --output <path>', 'Build files ouput folder')
+	.option('-o, --output <path>', 'bundled files ouput folder')
 	.option('-p, --platform <platform>', 'Specify the platform')
 	.option('-a, --architecture <architecture>', 'Specify the architecture')
 

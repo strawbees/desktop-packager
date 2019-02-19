@@ -1,2 +1,5 @@
 node_modules
 rh
+assets/win32/*.nsi
+!assets/win32/installer.template.nsi
+assets/win32/*.exe
