@@ -32,7 +32,7 @@ const runNSIS = async () => {
 	})
 }
 
-module.exports = async (src, output, outputInstallerName) => {
+module.exports = async (src, output, outputFolder, outputInstallerName) => {
 	console.log('packaging for windows')
 	const appPkg = require(path.resolve(src, 'package.json'))
 	// This is defined inside `assets/win32/installer.template.nsi`
@@ -41,6 +41,6 @@ module.exports = async (src, output, outputInstallerName) => {
 	await runNSIS()
 	await fs.copyFile(
 		path.resolve(assetsFolder, installerName),
-		path.resolve(output, `${outputInstallerName}.exe`),
+		path.resolve(outputFolder, `${outputInstallerName}.exe`),
 	)
 }
