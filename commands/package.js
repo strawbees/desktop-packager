@@ -5,6 +5,10 @@ const packageDarwinDmg = require('./package-darwin')
 const packageLinux = require('./package-linux')
 const zipdir = require('../utils/zipdir')
 
+/**
+ * Return an extension for the final packaged binary based on `platform`.
+ * @param {String} platform - Current packaging platform
+ */
 const addExtension = (platform) => {
 	if (platform == 'win32') {
 		return '.exe'
@@ -17,18 +21,31 @@ const addExtension = (platform) => {
 	}
 }
 
+/**
+ * Packages a bundled NWJS app into an executable binary, compress the source
+ * code for autoupdates and create a manifest pointing to binary and compressed
+ * source. A directory structure will be created at the `output` to separate
+ * files by `platform`, `architecture` and version.
+ * @param {String} src - Absolute path of directory containing bundled app.
+ * @param {String} output - Absolute path of directory to contain packaged app,
+ * compressed source and "latest" manifest file.
+ * @param {String} platform - Platform to bundle for.
+ * @param {String} architecture - Architecture to bundle for.
+ */
 module.exports = async (src, dist, platform, architecture) => {
 	console.log('packaging', src, dist, platform, architecture)
 
-	// Application package json
+	// Bundled application package json
 	const appPkg = require(path.resolve(src, 'package.json'))
-
-	// Define the path where the packaged app (windows installer and dmg),
-	// source and latest manifest will live.
+	// Absolute path of where the files generated should be.
 	const outputFolder = path.resolve(dist, 'versions', platform, architecture)
+	// Base name for files to be generated without extension
 	const outputInstallerName = `${appPkg['executable-name']}-${platform}-${architecture}-${appPkg.version}`
+	// Absolute path of where should the packaged binary be located
 	const outputInstallerPath = `${path.resolve(outputFolder, outputInstallerName)}${addExtension(platform)}`
+	// Absolute path of where should the compressed source code be located
 	const outputSourcePath = `${path.resolve(outputFolder, outputInstallerName)}-src.zip`
+	// Absolute path of where should the manifest file be located
 	const outputManifestPath = path.resolve(outputFolder, `latest.json`)
 
 	// Make sure output folder exists
@@ -37,7 +54,7 @@ module.exports = async (src, dist, platform, architecture) => {
 	// Package app according with platform
 	if (platform == 'win32') {
 		// Create windows installer
-		packageWindowsInstaller(src, outputInstallerPath)
+		packageWindowsInstaller(src, output, outputInstallerName)
 	}
 	if (platform == 'darwin') {
 		// Create macos dmg
@@ -48,8 +65,8 @@ module.exports = async (src, dist, platform, architecture) => {
 		packageLinux(src, outputInstallerPath)
 	}
 
-	// Zip the source code
-	await zipdir(src, outputSourcePath,'')
+	// Compress source code
+	await zipdir(src, outputSourcePath, '')
 
 	// Write latest manifest
 	fs.writeFile(
