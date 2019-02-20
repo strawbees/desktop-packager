@@ -9,9 +9,9 @@ program
 
 program
 	.command('bundle', 'bundles NWJS source code')
+	.command('cpdir', 'copy folders recursively')
 	.command('deploy', 'deploy packaged app')
 	.command('package', 'packages bundled NWJS source code')
 	.command('sign', 'sign binaries')
-	.command('prepare', 'bundles and packages the app')
 
 program.parse(process.argv)

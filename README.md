@@ -33,31 +33,33 @@ Usage: desktop-packager [options] [command]
 Packages NWJS application.
 
 Options:
-  -v, --version    output the version number
-  -h, --help       output usage information
+  -v, --version  output the version number
+  -h, --help     output usage information
 
 Commands:
-  bundle           bundles NWJS source code
-  deploy           deploy packaged app
-  package          packages bundled NWJS source code
-  sign             sign binaries
-  prepare          bundles and packages the app
-  help [cmd]       display help for [cmd]
+  bundle         bundles NWJS source code
+  cpdir          copy folders recursively
+  deploy         deploy packaged app
+  package        packages bundled NWJS source code
+  sign           sign binaries
+  help [cmd]     display help for [cmd]
 ```
 
 Run `desktop-packager help <command>` replacing `<command>` by one of the available commands to see what each command accepts as arguments.
 
 ### Example of usage:
 
-If `desktop-packager` is included on a project as dependencies it will register the binaries with `strawbees-` prefix. To call the `prepare` command (which is a standalone binary) from the root of the main project would look like:
+If `desktop-packager` is included on a project as dependencies it will register the binaries with `strawbees-` prefix. To build a packaged binary (installer, dmg or zip), first it's needed to bundle then package the application:
 
 ```bash
 # Defaults to `--source` to `./src` and `--output` to `./dist`.
 # Autodetects platform and architecture
-./node_modules/.bin/strawbees-desktop-packager-prepare
+./node_modules/.bin/strawbees-desktop-packager-bundle
+./node_modules/.bin/strawbees-desktop-packager-package
 
 # Specifying `--source`, `--output`
-./node_modules/.bin/strawbees-desktop-packager-prepare --source ./myapp --output ./build
+./node_modules/.bin/strawbees-desktop-packager-bundle --source ./myapp --output ./build
+./node_modules/.bin/strawbees-desktop-packager-package --source ./build/bundle --output ./build
 ```
 
 Another way to call it is to register a script on the project's `package.json`. In this case it's possible to call the binaries without the path and use the commands, for example:
@@ -65,8 +67,12 @@ Another way to call it is to register a script on the project's `package.json`. 
 ```json
 {
 	"scripts": {
-		"build": "strawbees-desktop-packager prepare",
-		"other-build": "strawbees-desktop-packager prepare --source ./myapp --output ./build"
+		"bundle": "strawbees-desktop-packager-bundle",
+		"package": "strawbees-desktop-packager-package",
+		"build": "npm run bundle && npm run package",
+		"other-bundle": "strawbees-desktop-packager-bundle --source ./myapp --output ./build",
+		"other-package": "strawbees-desktop-packager-package --source ./build/bundle --output ./build",
+		"other-build": "npm run other-bundle && npm run other-package"
 	}
 }
 ```
