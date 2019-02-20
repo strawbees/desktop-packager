@@ -6,12 +6,12 @@ const cpdir = require('./utils/cpdir')
 
 program
 	.option('-s, --source <path>', 'folder to copy recursively')
-	.option('-d, --dest <path>', 'destination')
+	.option('-o, --output <path>', 'destination folder')
 
 program.parse(process.argv)
 
 const SOURCE = program.source
-const OUTPUT = program.outout
+const OUTPUT = program.output
 
 const copyDir = async () => {
 	// await rimraf(path.resolve(OUTPUT))
