@@ -13,7 +13,9 @@ ManifestDPIAware true
 !define APP_DESCRIPTION "Strawbees CODE Desktop App allows you to create, save and upload code to your Quirkbot."
 !define APP_VERSION "{{APP_VERSION}}"
 !define APP_PUBLISHER "{{APP_PUBLISHER}}"
-!define RELATIVE_BUILD_PATH "{{RELATIVE_BUILD_PATH}}"
+!define TEMP_BUILD_PATH "{{TEMP_BUILD_PATH}}"
+!define FINAL_BUILD_PATH "{{FINAL_BUILD_PATH}}"
+!define SOURCE_PATH "{{SOURCE_PATH}}"
 !define APP_EXECUTABLE_NAME "{{APP_EXECUTABLE_NAME}}"
 !define APP_URL_SCHEME "{{APP_URL_SCHEME}}"
 
@@ -25,7 +27,7 @@ BrandingText "${APP_PUBLISHER}"
 !define MUI_UNICON "icon.ico"
 
 # define the resulting installer's name:
-OutFile "${RELATIVE_BUILD_PATH}\${APP_EXECUTABLE_NAME}-installer.exe"
+OutFile "${TEMP_BUILD_PATH}\${APP_EXECUTABLE_NAME}-installer.exe"
 
 # set the installation directory
 InstallDir "$APPDATA\${APP_NAME}\"
@@ -40,7 +42,7 @@ FunctionEnd
 Function doFiles
 	# copy the app files to the output path
 	DetailPrint "Moving app files"
-	File /r "${RELATIVE_BUILD_PATH}\app\*"
+	File /r "${SOURCE_PATH}\*"
 	# create the uninstaller
 	DetailPrint "Creating uninstaller"
 	WriteUninstaller "$INSTDIR\uninstall-${APP_EXECUTABLE_NAME}.exe"
@@ -125,7 +127,7 @@ Function installDrivers
 	# install the drivers
 	DetailPrint "Installing drivers"
 	${If} ${AtMostWin8.1}
-		ExecWait '"$RELATIVE_BUILD_PATH\drivers\Quirkbot-Windows-Drivers-Installer.exe"' $1
+		ExecWait '"$TEMP_BUILD_PATH\drivers\Quirkbot-Windows-Drivers-Installer.exe"' $1
 	${Else}
 		DetailPrint "Your Windows doesn't need drivers"
 	${EndIf}
