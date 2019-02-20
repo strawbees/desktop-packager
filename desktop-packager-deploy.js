@@ -9,7 +9,7 @@ program
 
 program.parse(process.argv)
 
-const FOLDER = program.folder || path.resolve('./', 'dist')
+const FOLDER = program.folder || './dist'
 const CONFIG = program.config
 
-deploy(FOLDER, CONFIG)
+deploy(path.resolve(FOLDER), path.resolve(CONFIG))

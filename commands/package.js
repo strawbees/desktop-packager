@@ -54,7 +54,7 @@ module.exports = async (src, dist, platform, architecture) => {
 	// Package app according with platform
 	if (platform == 'win32') {
 		// Create windows installer
-		packageWindowsInstaller(src, output, outputInstallerName)
+		packageWindowsInstaller(src, dist, outputInstallerName)
 	}
 	if (platform == 'darwin') {
 		// Create macos dmg

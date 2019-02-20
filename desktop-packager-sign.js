@@ -12,4 +12,4 @@ program.parse(process.argv)
 const FILE = program.file
 const CONFIG = program.config
 
-sign(FILE, CONFIG)
+sign(path.resolve(FILE), path.resolve(CONFIG))

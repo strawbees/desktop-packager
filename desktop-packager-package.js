@@ -11,9 +11,9 @@ program
 
 program.parse(process.argv)
 
+const SOURCE = program.source || './dist/bundle'
+const OUTPUT = program.outout || './dist'
 const PLATFORM = program.platform || process.platform
 const ARCHITECTURE = program.architecture || process.arch
-const SOURCE = program.source || path.resolve('dist', 'bundle')
-const OUTPUT = program.outout || path.resolve('dist')
 
-package(SOURCE, OUTPUT, PLATFORM, ARCHITECTURE)
+package(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE)
