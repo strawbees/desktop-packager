@@ -1,4 +1,4 @@
-# Desktop App Packager
+# Strawbees Desktop App Packager
 
 An npm module and command line tool to automate the building, packaging and deploying of [Strawbees](https://strawbees.com/) desktop apps. Those steps are:
 
@@ -43,4 +43,30 @@ Commands:
   sign             sign binaries
   prepare          bundles and packages the app
   help [cmd]       display help for [cmd]
+```
+
+Run `desktop-packager help <command>` replacing `<command>` by one of the available commands to see what each command accepts as arguments.
+
+### Example of usage:
+
+If `desktop-packager` is included on a project as dependencies it will register the binaries with `strawbees-` prefix. To call the `prepare` command (which is a standalone binary) from the root of the main project would look like:
+
+```bash
+# Defaults to `--source` to `./src` and `--output` to `./dist`.
+# Autodetects platform and architecture
+./node_modules/.bin/strawbees-desktop-packager-prepare
+
+# Specifying `--source`, `--output`
+./node_modules/.bin/strawbees-desktop-packager-prepare --source ./myapp --output ./build
+```
+
+Another way to call it is to register a script on the project's `package.json`. In this case it's possible to call the binaries without the path and use the commands, for example:
+
+```json
+{
+	"scripts": {
+		"build": "strawbees-desktop-packager prepare",
+		"other-build": "strawbees-desktop-packager prepare --source ./myapp --output ./build"
+	}
+}
 ```
