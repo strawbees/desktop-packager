@@ -17,7 +17,8 @@
         "strawbees-desktop-packager-deploy": "desktop-packager-deploy.js",
         "strawbees-desktop-packager-package": "desktop-packager-package.js",
         "strawbees-desktop-packager-prepare": "desktop-packager-prepare.js",
-        "strawbees-desktop-packager-sign": "desktop-packager-sign.js"
+        "strawbees-desktop-packager-sign": "desktop-packager-sign.js",
+        "strawbees-desktop-packager-cpdir": "desktop-packager-cpdir.js"
     },
     "bugs": {
         "url": "https://github.com/strawbees/desktop-packager/issues"
