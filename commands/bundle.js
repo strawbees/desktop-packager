@@ -6,10 +6,17 @@ const download = require('../utils/download')
 const unzip = require('../utils/unzip')
 const execute = require('../utils/execute')
 
+/**
+ * Bundles a NWJS application from a `src` to an `output` directory. The final
+ * bundle will live inside a folder `bundle` inside the `output` directory.
+ * @param {String} src - Absolute path of directory containing app source code.
+ * @param {String} output - Absolute path of directory to contain bundled app.
+ * @return {Promise}
+ */
 const build = async (src, output) => {
 	const appPkg = require(path.resolve(src, 'package.json'))
 	// bundle source code
-	return new Promise((resolve, reject) => {
+	await new Promise((resolve, reject) => {
 		NWB.commands.nwbuild(
 			src,
 			{
@@ -32,6 +39,13 @@ const build = async (src, output) => {
 	})
 }
 
+/**
+ * Writes the version from `package.json` from `src` to the `package.json` on
+ * `output`.
+ * @param {String} src - Absolute path of directory containing app source code.
+ * @param {String} output - Absolute path of directory containing bundled app.
+ * @return {Promise}
+ */
 const writeVersion = async (src, output) => {
 	const srcPackagePath = path.resolve(src, 'package.json')
 	const outputPackagePath = path.resolve(output, 'bundle', 'package.json')
@@ -44,6 +58,10 @@ const writeVersion = async (src, output) => {
 	)
 }
 
+/**
+ * Downloads Resource Hacker to the same directory where this file is located
+ * on a folder called `rh`
+ */
 const downloadResourceHacker = async () => {
 	await rimraf(path.resolve(__dirname, 'rh'))
 	await fs.mkdir(path.resolve(__dirname, 'rh'))
@@ -57,6 +75,11 @@ const downloadResourceHacker = async () => {
 	)
 }
 
+/**
+ * Download and run Resource Hacker to change icon of bundled executable.
+ * @param {String} output - Absolute path of directory containing bundled app.
+ * @return {Promise}
+ */
 const resourceHacker = async (output) => {
 	// NWB calls ResourceHacker internally (by using the node-resourcehacker
 	// module). But as this module hasn't been updated to the new command line
@@ -77,6 +100,10 @@ const resourceHacker = async (output) => {
 	})
 }
 
+/**
+ * Manually fix broken symbolic links created by NWJS on bundled app.
+ * @param {String} output - Absolute path of directory containing bundled app.
+ */
 const fixSymbolicLinks = async (output) => {
 	// NWB transforms realtive symlinks into absolute ones, which totally breaks
 	// the application when you run it from another machine. So for now, we will
@@ -95,12 +122,16 @@ const fixSymbolicLinks = async (output) => {
 	})
 }
 
+/**
+ * Register URL Scheme on OSX by updating `Info.plist` file.
+ * @param {String} output - Absolute path of directory containing bundled app.
+ */
 const registerUrlSchemeDarwin = async (output) => {
 	// Register the app url scheme, by modifying the Info.plist
 	// eslint-disable-next-line global-require,import/no-extraneous-dependencies
 	const plist = require('plist')
 	const appPkg = require(path.resolve(output, 'package.json'))
-	const plistPath = path.resolve(output, 'app', `${appPkg['executable-name']}.app`, 'Contents', 'Info.plist')
+	const plistPath = path.resolve(output, 'bundle', `${appPkg['executable-name']}.app`, 'Contents', 'Info.plist')
 	const plistObject = plist.parse((await fs.readFile(plistPath, 'utf8')).toString())
 	plistObject.CFBundleURLTypes.push({
 		CFBundleURLName    : `${appPkg['executable-name']} URL`,
@@ -109,6 +140,13 @@ const registerUrlSchemeDarwin = async (output) => {
 	await fs.writeFile(plistPath, plist.build(plistObject))
 }
 
+/**
+ * Bundles and adjust bundled source according with platform.
+ * @param {String} src - Absolute path of directory containing app source code.
+ * @param {String} output - Absolute path of directory to contain bundled app.
+ * @param {String} platform - Platform to bundle for.
+ * @param {String} architecture - Architecture to bundle for.
+ */
 module.exports = async (src, output, platform, architecture) => {
 	await build(src, output)
 	await writeVersion(src, output)
