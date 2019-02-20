@@ -31,9 +31,23 @@ const createDmg = async (outputInstallerPath) => {
 	})
 }
 
+const registerUrlScheme = async (src, appPkg) => {
+	// Register the app url scheme, by modifying the Info.plist
+	// eslint-disable-next-line global-require,import/no-extraneous-dependencies
+	const plist = require('plist')
+	const plistPath = path.resolve(src, `${appPkg['executable-name']}.app`, 'Contents', 'Info.plist')
+	const plistObject = plist.parse((await fs.readFile(plistPath, 'utf8')).toString())
+	plistObject.CFBundleURLTypes.push({
+		CFBundleURLName    : `${appPkg['executable-name']} URL`,
+		CFBundleURLSchemes : [appPkg['url-scheme']]
+	})
+	return fs.writeFile(plistPath, plist.build(plistObject))
+}
+
 module.exports = async (src, outputInstallerPath) => {
 	console.log('package darwin')
 	const appPkg = require(path.resolve(src, 'package.json'))
+	await registerUrlScheme(src, appPkg)
 	await bakeDmgConfig(appPkg)
-	createDmg(outputInstallerPath)
+	await createDmg(outputInstallerPath)
 }

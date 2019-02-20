@@ -55,14 +55,14 @@ module.exports = async (src, dist, platform, architecture) => {
 	fs.writeFile(
 		outputManifestPath,
 		JSON.stringify({
-			name      : appPkg['display-name'],
-			version   : appPkg.version,
-			createdAt : new Date(),
-			installer : {
-				path : `${outputInstallerName}${addExtension(platform)}`
+			name: appPkg['display-name'],
+			version: appPkg.version,
+			createdAt: new Date(),
+			installer: {
+				path: `${outputInstallerName}${addExtension(platform)}`
 			},
-			src : {
-				path : `${outputInstallerName}-src.zip`
+			src: {
+				path: `${outputInstallerName}-src.zip`
 			}
 		})
 	)
