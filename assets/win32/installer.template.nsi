@@ -23,8 +23,8 @@ Name "${APP_NAME} ${APP_VERSION}"
 BrandingText "${APP_PUBLISHER}"
 
 # set the icon
-!define MUI_ICON "icon.ico"
-!define MUI_UNICON "icon.ico"
+!define MUI_ICON "${TEMP_BUILD_PATH}\nwjs-assets\win32\icon.ico"
+!define MUI_UNICON "${TEMP_BUILD_PATH}\nwjs-assets\win32\icon.ico"
 
 # define the resulting installer's name:
 OutFile "${TEMP_BUILD_PATH}\${APP_EXECUTABLE_NAME}-installer.exe"

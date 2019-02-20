@@ -94,7 +94,7 @@ const resourceHacker = async (output) => {
 			`-open "${path.resolve(output, 'bundle', `${appPkg['executable-name']}.exe`)}" ` +
 			`-save "${path.resolve(output, 'bundle', `${appPkg['executable-name']}.exe`)}" ` +
 			'-action addoverwrite ' +
-			`-res "${path.resolve(output, 'nwjs-assets', 'win32', 'icon.ico')}" ` +
+			`-res "${path.resolve(output, 'bundle', 'nwjs-assets', 'win32', 'icon.ico')}" ` +
 			'-mask ICONGROUP, IDR_MAINFRAME'
 		)
 	})
