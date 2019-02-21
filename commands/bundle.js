@@ -109,11 +109,11 @@ const build = async (src, output) => {
  * @param {String} output - Absolute path of directory containing bundled app.
  */
 const updatePackageManifest = async (src, output) => {
-	const srcPackagePath = path.resolve(src, 'package.json')
 	const outputPackagePath = path.resolve(output, 'bundle', 'package.json')
-	const srcPackage = require(srcPackagePath)
+	const srcPackage = require(path.resolve('./', 'package.json'))
 	const outputPackage = require(outputPackagePath)
-	// Writes the version from `package.json` from `src` to the one on `output`
+	// Writes the version from `package.json` from current project running the
+    // bundle cmmand to the one on the bundled app.
 	outputPackage.version = srcPackage.version
 	// Rewrite `display-name` and `executable-name`
 	outputPackage['display-name'] = getExecutableName(outputPackage['display-name'])
