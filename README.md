@@ -39,7 +39,6 @@ Options:
 Commands:
   bundle         bundles NWJS source code
   cpdir          copy folders recursively
-  deploy         deploy packaged app
   package        packages bundled NWJS source code
   sign           sign binaries
   help [cmd]     display help for [cmd]
