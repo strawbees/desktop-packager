@@ -46,6 +46,8 @@ Commands:
 
 Run `desktop-packager help <command>` replacing `<command>` by one of the available commands to see what each command accepts as arguments.
 
+Use the `NODE_ENV` environment variable to bundle for one of the available configurations: `dev`, `stage`, `production`. Bundle is the only command that is sensitive to `NODE_ENV`.
+
 ### Example of usage:
 
 If `desktop-packager` is included on a project as dependencies it will register the binaries with `strawbees-` prefix. To build a packaged binary (installer, dmg or zip), first it's needed to bundle then package the application:
@@ -56,9 +58,13 @@ If `desktop-packager` is included on a project as dependencies it will register 
 ./node_modules/.bin/strawbees-desktop-packager-bundle
 ./node_modules/.bin/strawbees-desktop-packager-package
 
+# Bundling for production
+NODE_ENV=production ./node/.bin/strawbees-desktop-packager
+
 # Specifying `--source`, `--output`
 ./node_modules/.bin/strawbees-desktop-packager-bundle --source ./myapp --output ./build
 ./node_modules/.bin/strawbees-desktop-packager-package --source ./build/bundle --output ./build
+
 ```
 
 Another way to call it is to register a script on the project's `package.json`. In this case it's possible to call the binaries without the path and use the commands, for example:
