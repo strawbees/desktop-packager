@@ -115,6 +115,8 @@ const updatePackageManifest = async (src, output) => {
 	// Writes the version from `package.json` from current project running the
     // bundle cmmand to the one on the bundled app.
 	outputPackage.version = srcPackage.version
+	// Rewrite `autoupdate` url
+	outputPackage['autoupdate'] = outputPackage['autoupdate'][getEnvironment()]
 	// Rewrite `display-name` and `executable-name`
 	outputPackage['display-name'] = getExecutableName(outputPackage['display-name'])
 	outputPackage['executable-name'] = getExecutableName(outputPackage['executable-name'])
