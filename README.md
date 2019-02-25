@@ -1,4 +1,4 @@
-# Desktop App Packager
+# Strawbees Desktop App Packager
 
 An npm module and command line tool to automate the building, packaging and deploying of [Strawbees](https://strawbees.com/) desktop apps. Those steps are:
 
@@ -27,12 +27,57 @@ Run `npm install --save @strawbees/desktop-packager` to install and save the app
 
 ## Usage
 
-On your NWJS project folder, identify what is the folder that contains the app (usually `src`) and make sure it has a `package.json` inside.
+```
+Usage: desktop-packager [options] [command]
 
-Assuming this folder is `src` on the root of your NWJS project, navigate to your NWJS project folder and run `desktop-packager package --source ./src --output ./dist`. This will identify your platform and run all the steps described above.
+Packages NWJS application.
 
-You can also run them separatedly. Check the API reference for more details.
+Options:
+  -v, --version  output the version number
+  -h, --help     output usage information
 
-## API Reference
+Commands:
+  bundle         bundles NWJS source code
+  cpdir          copy folders recursively
+  package        packages bundled NWJS source code
+  sign           sign binaries
+  help [cmd]     display help for [cmd]
+```
 
-TODO.
+Run `desktop-packager help <command>` replacing `<command>` by one of the available commands to see what each command accepts as arguments.
+
+Use the `NODE_ENV` environment variable to bundle for one of the available configurations: `dev`, `stage`, `production`. Bundle is the only command that is sensitive to `NODE_ENV`.
+
+### Example of usage:
+
+If `desktop-packager` is included on a project as dependencies it will register the binaries with `strawbees-` prefix. To build a packaged binary (installer, dmg or zip), first it's needed to bundle then package the application:
+
+```bash
+# Defaults to `--source` to `./src` and `--output` to `./dist`.
+# Autodetects platform and architecture
+./node_modules/.bin/strawbees-desktop-packager-bundle
+./node_modules/.bin/strawbees-desktop-packager-package
+
+# Bundling for production
+NODE_ENV=production ./node/.bin/strawbees-desktop-packager
+
+# Specifying `--source`, `--output`
+./node_modules/.bin/strawbees-desktop-packager-bundle --source ./myapp --output ./build
+./node_modules/.bin/strawbees-desktop-packager-package --source ./build/bundle --output ./build
+
+```
+
+Another way to call it is to register a script on the project's `package.json`. In this case it's possible to call the binaries without the path and use the commands, for example:
+
+```json
+{
+	"scripts": {
+		"bundle": "strawbees-desktop-packager-bundle",
+		"package": "strawbees-desktop-packager-package",
+		"build": "npm run bundle && npm run package",
+		"other-bundle": "strawbees-desktop-packager-bundle --source ./myapp --output ./build",
+		"other-package": "strawbees-desktop-packager-package --source ./build/bundle --output ./build",
+		"other-build": "npm run other-bundle && npm run other-package"
+	}
+}
+```

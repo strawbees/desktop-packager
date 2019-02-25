@@ -1,0 +1,10 @@
+{
+	"title": "{{APP_NAME}}",
+	"icon": "icon.icns",
+	"icon-size": 128,
+	"background": "dmg-bg.png",
+	"contents": [
+		{ "x": 468, "y": 262, "type": "link", "path": "/Applications" },
+		{ "x": 172, "y": 262, "type": "file", "path": "{{RELATIVE_BUILD_PATH}}/app/{{APP_EXECUTABLE_NAME}}.app" }
+	]
+}
