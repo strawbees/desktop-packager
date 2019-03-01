@@ -127,7 +127,7 @@ Function installDrivers
 	# install the drivers
 	DetailPrint "Installing drivers"
 	${If} ${AtMostWin8.1}
-		ExecWait '"$TEMP_BUILD_PATH\drivers\Quirkbot-Windows-Drivers-Installer.exe"' $1
+		ExecWait '"${TEMP_BUILD_PATH}\drivers\Quirkbot-Windows-Drivers-Installer.exe"' $1
 	${Else}
 		DetailPrint "Your Windows doesn't need drivers"
 	${EndIf}
