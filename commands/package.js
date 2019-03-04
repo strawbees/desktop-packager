@@ -54,15 +54,15 @@ module.exports = async (src, dist, platform, architecture) => {
 	// Package app according with platform
 	if (platform == 'win32') {
 		// Create windows installer
-		packageWindowsInstaller(src, dist, outputFolder, outputInstallerName)
+		await packageWindowsInstaller(src, dist, outputFolder, outputInstallerName)
 	}
 	if (platform == 'darwin') {
 		// Create macos dmg
-		packageDarwinDmg(src, outputInstallerPath)
+		await packageDarwinDmg(src, outputInstallerPath)
 	}
 	if (platform == 'linux') {
 		// Zip bundled app to distribute
-		packageLinux(src, outputInstallerPath)
+		await packageLinux(src, outputInstallerPath)
 	}
 
 	// Compress source code
