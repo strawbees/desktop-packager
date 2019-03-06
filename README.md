@@ -81,3 +81,19 @@ Another way to call it is to register a script on the project's `package.json`. 
 	}
 }
 ```
+
+## Code signing
+
+### Windows 7
+
+We use `SignTool` to sign both the driver's catalog file (`cat`) and installer. It says on the [documentation](https://docs.microsoft.com/en-us/dotnet/framework/tools/signtool-exe) that it comes with the Windows SDK but it seems to be a little bit tricker to do it on a fresh [Windows 7 VirtualBox image provided by Microsoft](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/):
+
+- [Install .NET Framework 4](https://www.microsoft.com/en-us/download/details.aspx?id=17851) (It has to be 4, 4.7 won't work)
+- [Install Windows SDK](https://www.microsoft.com/en-us/download/details.aspx?id=8279)
+- Add Windows SDK Tools binary folder to system `PATH`
+
+Once `signtool` is available from the `CMD` or `PowerShell`:
+
+- [Install and activate SafeNet driver and client](https://knowledge.digicert.com/solution/SO27164.html#attach)
+- Connect USB token
+- Run `desktop-packager sign -f "PATH TO FILE"` and behind the scenes it will select the current platform (assuming `Windows 7 x86`) and run the appropriate `signtool` command.
