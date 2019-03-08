@@ -8,7 +8,7 @@ const nsiTemplatePath = path.resolve(assetsFolder, 'installer.template.nsi')
 const nsiFilePath = path.resolve(assetsFolder, 'installer.nsi')
 
 const downloadDriver = async (url, filename) => {
-	const driverFolderPath = path.resolve('./', 'drivers')
+	const driverFolderPath = path.resolve(assetsFolder, 'drivers')
 	try {
 		await fs.mkdir(driverFolderPath)
 	} catch (e) {
