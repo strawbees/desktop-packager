@@ -82,6 +82,39 @@ Another way to call it is to register a script on the project's `package.json`. 
 }
 ```
 
+## File structure
+
+The commands `bundle` and `package` will output directories of files on the given `output` path. Those directories are:
+
+### `bundle`
+
+Bundled `NWJS` source code. It should contain the correct `NWJS` version and the source code. It's possible to run the app on this folder before packaging for debugging.
+
+For example, if you run the following command on a Windows machine (PowerShell) you will get a bundled app for stage environment inside the `.\build\bundle` folder:
+
+```
+$env:NODE_ENV='stage'
+desktop-packager bundle --source .\myapp --output .\build
+```
+
+### `versions`
+
+This is a folder for the "packaged" application. It will create a folder for the operations system, architecture and drop packaged application (dmg or installer), source code for updater and a `latest.json` manifest file with paths for the latest versions of packged app and source code.
+
+For example, if you have a bundled app on `.\build` folder you can run (PowerShell on Windows x86):
+
+```
+desktop-packager package --source .\build\bundle --output .\build
+```
+
+This will create the following file structure:
+
+```
+build\versions\win32\x86\latest.json
+build\versions\win32\x86\EXECUTABLE_NAME.exe
+build\versions\win32\x86\EXECUTABLE_NAME-src.zip
+```
+
 ## Code signing
 
 ### Windows 7
