@@ -18,6 +18,7 @@ ManifestDPIAware true
 !define SOURCE_PATH "{{SOURCE_PATH}}"
 !define APP_EXECUTABLE_NAME "{{APP_EXECUTABLE_NAME}}"
 !define APP_URL_SCHEME "{{APP_URL_SCHEME}}"
+!define DRIVER_INSTALLER "{{DRIVER_INSTALLER}}"
 
 Name "${APP_NAME} ${APP_VERSION}"
 BrandingText "${APP_PUBLISHER}"
@@ -127,9 +128,13 @@ Function installDrivers
 	# install the drivers
 	DetailPrint "Installing drivers"
 	${If} ${AtMostWin8.1}
-		ExecWait '"${TEMP_BUILD_PATH}\drivers\Quirkbot-Windows-Drivers-Installer.exe"' $1
+		${If} ${DRIVER_INSTALLER} == ""
+			DetailPrint "Your app doesn't need driver"
+		${Else}
+			ExecWait '"${TEMP_BUILD_PATH}\drivers\${DRIVER_INSTALLER}"' $1
+		${EndIf}
 	${Else}
-		DetailPrint "Your Windows doesn't need drivers"
+		DetailPrint "Your Windows doesn't need driver"
 	${EndIf}
 FunctionEnd
 
