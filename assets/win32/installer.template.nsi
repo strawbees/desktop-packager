@@ -124,6 +124,16 @@ Function un.doShortcuts
 	Delete "$DESKTOP\${APP_NAME}.lnk"
 FunctionEnd
 
+Function doDriverInstaller
+	DetailPrint "Moving Driver Installer"
+	File /r "${TEMP_BUILD_PATH}\drivers"
+FunctionEnd
+
+Function un.doDriverInstaller
+	DetailPrint "Removing Driver Installer"
+	RMDir /r "$INSTDIR\drivers"
+FunctionEnd
+
 Function installDrivers
 	# install the drivers
 	DetailPrint "Installing drivers"
@@ -131,7 +141,7 @@ Function installDrivers
 		${If} ${DRIVER_INSTALLER} == ""
 			DetailPrint "Your app doesn't need driver"
 		${Else}
-			ExecWait '"${TEMP_BUILD_PATH}\drivers\${DRIVER_INSTALLER}"' $1
+			ExecWait '"$INSTDIR\drivers\${DRIVER_INSTALLER}"' $1
 		${EndIf}
 	${Else}
 		DetailPrint "Your Windows doesn't need driver"
@@ -155,6 +165,7 @@ Section "- Register Uninstaller"
 SectionEnd
 
 Section "Quirkbot Drivers" QuirkbotDrivers
+	Call doDriverInstaller
 	Call installDrivers
 SectionEnd
 
@@ -164,6 +175,7 @@ Section "Uninstall"
 	Call un.registerAppUrlScheme
 	Call un.doShortcuts
 	Call un.doFiles
+	Call un.doDriverInstaller
 SectionEnd
 
 Function checkRequiredComponents
