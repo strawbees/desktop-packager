@@ -12,7 +12,7 @@ program
 program.parse(process.argv)
 
 const SOURCE = program.source || './dist/bundle'
-const OUTPUT = program.outout || './dist'
+const OUTPUT = program.output || './dist'
 const PLATFORM = program.platform || process.platform
 const ARCHITECTURE = program.architecture || process.arch
 
