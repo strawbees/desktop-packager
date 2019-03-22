@@ -69,6 +69,28 @@ const getUrlScheme = (baseScheme) => {
 }
 
 /**
+ * Identifies what is the path for the package.json of the application, after
+ * bundling and based in the current platform.
+ * @param {String} platform - Platform to bundle for.
+ * @param {String} baseName - Base executable/display name
+ * @param {String} output - Absolute path of directory containing bundled app.
+ * @return {String}
+ */
+const getBundledPackagePath = (platform, baseName, output) => {
+	switch (platform) {
+		case 'win32':
+			return path.resolve(output, 'bundle', 'package.json')
+			break;
+		case 'darwin':
+			return path.resolve(output, 'bundle', `${getExecutableName(baseName)}.app`, 'Contents', 'Resources', 'app.nw', 'package.json')
+			break;
+		case 'linux':
+			return path.resolve(output, 'bundle', 'package.json')
+			break;
+	}
+}
+
+/**
  * Bundles a NWJS application from a `src` to an `output` directory. The final
  * bundle will live inside a folder `bundle` inside the `output` directory.
  * @param {String} src - Absolute path of directory containing app source code.
@@ -105,15 +127,20 @@ const build = async (src, output) => {
  * Updates the bundled `package.json` manifest file on the bundled nwjs source
  * code. This action is responsible for updating the version and names that are
  * sensitive to the environment being built (dev, stage, production).
+ * @param {String} platform - Platform to bundle for.
  * @param {String} src - Absolute path of directory containing app source code.
  * @param {String} output - Absolute path of directory containing bundled app.
  */
-const updatePackageManifest = async (src, output) => {
-	const outputPackagePath = path.resolve(output, 'bundle', 'package.json')
-	const srcPackage = require(path.resolve('./', 'package.json'))
-	const outputPackage = require(outputPackagePath)
+const updatePackageManifest = async (platform, src, output) => {
+	const outputPackage = JSON.parse(await fs.readFile((path.resolve(src, 'package.json'))))
+	const srcPackage = JSON.parse(await fs.readFile((path.resolve('./', 'package.json'))))
+	const outputPackagePath = getBundledPackagePath(
+		platform,
+		outputPackage['display-name'],
+		output
+	)
 	// Writes the version from `package.json` from current project running the
-    // bundle cmmand to the one on the bundled app.
+	// bundle cmmand to the one on the bundled app.
 	outputPackage.version = srcPackage.version
 	// Rewrite `autoupdate` url
 	outputPackage['autoupdate'] = outputPackage['autoupdate'][getEnvironment()]
@@ -174,15 +201,15 @@ const resourceHacker = async (src) => {
 
 /**
  * Manually fix broken symbolic links created by NWJS on bundled app.
- * @param {String} src - Absolute path of directory containing bundled app.
+ * @param {String} output - Absolute path of directory to contain bundled app.
  */
-const fixSymbolicLinks = async (src) => {
+const fixSymbolicLinks = async (output) => {
 	// NWB transforms realtive symlinks into absolute ones, which totally breaks
 	// the application when you run it from another machine. So for now, we will
 	// just manually fix those symlinks
 	execute(async ({ exec }) => {
 		await exec(`
-			cd "$(find . -name "nwjs Framework.framework")"
+			cd "$(find ${output} -name "nwjs Framework.framework")"
 			rm "Versions/Current" && ln -s "./A" "./Versions/Current"
 			rm "Helpers" && ln -s "./Versions/Current/Helpers"
 			rm "Internet Plug-Ins" && ln -s "./Versions/Current/Internet Plug-Ins"
@@ -196,14 +223,20 @@ const fixSymbolicLinks = async (src) => {
 
 /**
  * Register URL Scheme on OSX by updating `Info.plist` file.
- * @param {String} src - Absolute path of directory containing bundled app.
+ * @param {String} src - Absolute path of directory containing app source code.
+ * @param {String} output - Absolute path of directory to contain bundled app.
  */
-const registerUrlSchemeDarwin = async (src) => {
+const registerUrlSchemeDarwin = async (src, output) => {
 	// Register the app url scheme, by modifying the Info.plist
 	// eslint-disable-next-line global-require,import/no-extraneous-dependencies
 	const plist = require('plist')
-	const appPkg = require(path.resolve(src, 'package.json'))
-	const plistPath = path.resolve(src, 'bundle', `${appPkg['executable-name']}.app`, 'Contents', 'Info.plist')
+	const outputPackage = JSON.parse(await fs.readFile(path.resolve(src, 'package.json')))
+	const appPkg = require(getBundledPackagePath(
+		'darwin',
+		outputPackage['display-name'],
+		output
+	))
+	const plistPath = path.resolve(output, 'bundle', `${appPkg['executable-name']}.app`, 'Contents', 'Info.plist')
 	const plistObject = plist.parse((await fs.readFile(plistPath, 'utf8')).toString())
 	plistObject.CFBundleURLTypes.push({
 		CFBundleURLName    : `${appPkg['executable-name']} URL`,
@@ -221,13 +254,13 @@ const registerUrlSchemeDarwin = async (src) => {
  */
 module.exports = async (src, output, platform, architecture) => {
 	await build(src, output)
-	await updatePackageManifest(src, output)
+	await updatePackageManifest(platform, src, output)
 	if (platform == 'win32') {
 		await resourceHacker(output)
 	}
 	if (platform == 'darwin') {
 		await fixSymbolicLinks(output)
-		await registerUrlSchemeDarwin(output)
+		await registerUrlSchemeDarwin(src, output)
 	}
 	if (platform == 'linux') {
 		console.log('Nothing to do on linux')
