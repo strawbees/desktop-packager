@@ -27,31 +27,6 @@ const fixSymbolicLinks = async (dist) => {
 }
 
 /**
- * Register URL Scheme on OSX by updating `Info.plist` file.
- * @param {String} dist - Absolute path of directory where app will be bundled
- *  and packaged.
- * @param {String} bundledPackagePath - Absolute path of bundled app's package.json.
- */
-const registerUrlSchemeDarwin = async (dist, bundledPackagePath) => {
-	// Register the app url scheme, by modifying the Info.plist
-	const bundledPackage = require(bundledPackagePath)
-	const plistPath = path.resolve(
-		dist,
-		'bundle',
-		`${bundledPackage['executable-name']}.app`,
-		'Contents',
-		'Info.plist'
-	)
-	const plistFile = await fs.readFile(plistPath, 'utf8')
-	const plistObject = plist.parse(plistFile.toString())
-	plistObject.CFBundleURLTypes.push({
-		CFBundleURLName    : `${bundledPackage['executable-name']} URL`,
-		CFBundleURLSchemes : [bundledPackage['url-scheme']]
-	})
-	await fs.writeFile(plistPath, plist.build(plistObject))
-}
-
-/**
  * Returns the absolute path where the `package.json` should be on bundled app.
  * @param {String} dist - Absolute path of directory where app will be bundled
  *  and packaged.
@@ -73,6 +48,5 @@ const getBundledPackagePath = (dist, executableName) => {
 
 module.exports = {
 	fixSymbolicLinks,
-	registerUrlSchemeDarwin,
   getBundledPackagePath
 }

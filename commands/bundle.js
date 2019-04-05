@@ -108,7 +108,7 @@ const getUrlScheme = (baseScheme) => {
  * @param {String} dist - Absolute path of directory to contain bundled app.
  * @return {Promise}
  */
-const build = async (src, dist, nwbPlatform) => {
+const bundle = async (src, dist, nwbPlatform) => {
 	const appPkg = require(path.resolve(src, 'package.json'))
 	// bundle source code
 	await new Promise((resolve, reject) => {
@@ -169,8 +169,8 @@ const updatePackageManifest = async (outputPackagePath) => {
 module.exports = async (src, dist, platform, architecture) => {
   // NWB uses a different platform format that merges platform and architecture
   let nwbPlatform = getNWBPlatform(platform, architecture)
-  // Build app (bundle)
-	await build(src, dist, nwbPlatform)
+  // Bundle app
+	await bundle(src, dist, nwbPlatform)
 
 	if (platform == 'win32') {
     let bundledPackagePath = bundleWin32.getBundledPackagePath(dist)
@@ -182,14 +182,19 @@ module.exports = async (src, dist, platform, architecture) => {
     // The "source" package has important information such as `executable-name`.
     // Without knowing before hand the executable name, it's impossible to know
     // where the bundled `package.json` will be on macos.
-    let srcPackagePath = path.resolve('./', 'src', 'package.json')
+    let srcPackagePath = path.resolve(src, 'package.json')
     let srcPackage = require(srcPackagePath)
     let bundledPackagePath = bundleDarwin.getBundledPackagePath(
       dist, getExecutableName(srcPackage['executable-name'])
     )
     await updatePackageManifest(bundledPackagePath)
 		await bundleDarwin.fixSymbolicLinks(dist)
-		await bundleDarwin.registerUrlSchemeDarwin(dist, bundledPackagePath)
+		// To make packaging easier, let's copy the bundled `package.json` to the
+		// root of `dist/bundle`
+		await fs.copyFile(
+			bundledPackagePath,
+			path.resolve(dist, 'bundle', 'package.json')
+		)
 	}
 
 	if (platform == 'linux') {

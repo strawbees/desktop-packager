@@ -17,7 +17,7 @@ const downloadDriver = async (url, filename) => {
 	await download(url, path.resolve(driverFolderPath, filename))
 }
 
-const bakeNsiFile = async (appPkg, src, output) => {
+const bakeNsiFile = async (appPkg, src) => {
 	let driverInstaller = appPkg.driver ? appPkg.driver.filename : ''
 	const template = (await fs.readFile(nsiTemplatePath)).toString()
 		.split('{{APP_NAME}}').join(appPkg['display-name'])
@@ -27,7 +27,6 @@ const bakeNsiFile = async (appPkg, src, output) => {
 		.split('{{APP_URL_SCHEME}}').join(appPkg['url-scheme'])
 		.split('{{SOURCE_PATH}}').join(src)
 		.split('{{TEMP_BUILD_PATH}}').join(assetsFolder)
-		.split('{{FINAL_BUILD_PATH}}').join(output)
 		.split('{{DRIVER_INSTALLER}}').join(driverInstaller)
 	return  fs.writeFile(nsiFilePath, template)
 }
@@ -45,7 +44,7 @@ const runNSIS = async () => {
 	})
 }
 
-module.exports = async (src, output, outputFolder, outputInstallerName) => {
+module.exports = async (src, outputInstallerPath) => {
 	console.log('packaging for windows')
 	const appPkg = require(path.resolve(src, 'package.json'))
 	if (appPkg.driver) {
@@ -53,10 +52,10 @@ module.exports = async (src, output, outputFolder, outputInstallerName) => {
 	}
 	// This is defined inside `assets/win32/installer.template.nsi`
 	const installerName = `${appPkg['executable-name']}-installer.exe`
-	await bakeNsiFile(appPkg, src, output)
+	await bakeNsiFile(appPkg, src)
 	await runNSIS()
 	await fs.copyFile(
 		path.resolve(assetsFolder, installerName),
-		path.resolve(outputFolder, `${outputInstallerName}.exe`),
+		path.resolve(outputInstallerPath),
 	)
 }
