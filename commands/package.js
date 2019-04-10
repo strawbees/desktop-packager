@@ -1,7 +1,5 @@
 const path = require('path')
 const fs = require('fs').promises
-const packageWindowsInstaller = require('./package-win32')
-const packageDarwinDmg = require('./package-darwin')
 const packageLinux = require('./package-linux')
 const zipdir = require('../utils/zipdir')
 
@@ -53,10 +51,12 @@ module.exports = async (src, dist, platform, architecture) => {
 
 	// Package app according with platform
 	if (platform == 'win32') {
+		const packageWindowsInstaller = require('./package-win32')
 		// Create windows installer
 		await packageWindowsInstaller(src, outputInstallerPath)
 	}
 	if (platform == 'darwin') {
+		const packageDarwinDmg = require('./package-darwin')
 		// Create macos dmg
 		try {
 			await packageDarwinDmg(

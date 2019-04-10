@@ -1,8 +1,6 @@
 const NWB = require('nwjs-builder')
 const fs = require('fs').promises
 const path = require('path')
-const bundleWin32 = require('./bundle-win32')
-const bundleDarwin = require('./bundle-darwin')
 
 /**
  * Identifies the current environment this bundle running: `dev`, `stage` or
@@ -173,12 +171,14 @@ module.exports = async (src, dist, platform, architecture) => {
 	await bundle(src, dist, nwbPlatform)
 
 	if (platform == 'win32') {
+    const bundleWin32 = require('./bundle-win32')
     let bundledPackagePath = bundleWin32.getBundledPackagePath(dist)
     await updatePackageManifest(bundledPackagePath)
 		await bundleWin32.resourceHacker(dist)
 	}
 
 	if (platform == 'darwin') {
+    const bundleDarwin = require('./bundle-darwin')
     // The "source" package has important information such as `executable-name`.
     // Without knowing before hand the executable name, it's impossible to know
     // where the bundled `package.json` will be on macos.
