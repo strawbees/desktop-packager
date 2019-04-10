@@ -58,15 +58,11 @@ module.exports = async (src, dist, platform, architecture) => {
 	if (platform == 'darwin') {
 		const packageDarwinDmg = require('./package-darwin')
 		// Create macos dmg
-		try {
-			await packageDarwinDmg(
-				src, // Folder containing bundled app
-				appPkg, // Bundled package object
-				outputInstallerPath // Final file destination for `dmg`
-			)
-		} catch (e) {
-			console.log(e)
-		}
+		await packageDarwinDmg(
+			src, // Folder containing bundled app
+			appPkg, // Bundled manifest object (`package.json` of bundled app)
+			outputInstallerPath // Final file path for `dmg`
+		)
 	}
 	if (platform == 'linux') {
 		// Zip bundled app to distribute
