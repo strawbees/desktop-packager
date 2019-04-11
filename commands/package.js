@@ -1,7 +1,5 @@
 const path = require('path')
 const fs = require('fs').promises
-const packageWindowsInstaller = require('./package-win32')
-const packageDarwinDmg = require('./package-darwin')
 const packageLinux = require('./package-linux')
 const zipdir = require('../utils/zipdir')
 
@@ -27,7 +25,7 @@ const addExtension = (platform) => {
  * source. A directory structure will be created at the `output` to separate
  * files by `platform`, `architecture` and version.
  * @param {String} src - Absolute path of directory containing bundled app.
- * @param {String} output - Absolute path of directory to contain packaged app,
+ * @param {String} dist - Absolute path of directory to contain packaged app,
  * compressed source and "latest" manifest file.
  * @param {String} platform - Platform to bundle for.
  * @param {String} architecture - Architecture to bundle for.
@@ -53,12 +51,18 @@ module.exports = async (src, dist, platform, architecture) => {
 
 	// Package app according with platform
 	if (platform == 'win32') {
+		const packageWindowsInstaller = require('./package-win32')
 		// Create windows installer
-		await packageWindowsInstaller(src, dist, outputFolder, outputInstallerName)
+		await packageWindowsInstaller(src, outputInstallerPath)
 	}
 	if (platform == 'darwin') {
+		const packageDarwinDmg = require('./package-darwin')
 		// Create macos dmg
-		await packageDarwinDmg(src, outputInstallerPath)
+		await packageDarwinDmg(
+			src, // Folder containing bundled app
+			appPkg, // Bundled manifest object (`package.json` of bundled app)
+			outputInstallerPath // Final file path for `dmg`
+		)
 	}
 	if (platform == 'linux') {
 		// Zip bundled app to distribute
