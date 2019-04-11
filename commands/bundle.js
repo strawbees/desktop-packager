@@ -1,10 +1,6 @@
 const NWB = require('nwjs-builder')
 const fs = require('fs').promises
 const path = require('path')
-const rimraf = require('../utils/rimraf')
-const download = require('../utils/download')
-const unzip = require('../utils/unzip')
-const execute = require('../utils/execute')
 
 /**
  * Identifies the current environment this bundle running: `dev`, `stage` or
@@ -13,6 +9,41 @@ const execute = require('../utils/execute')
  */
 const getEnvironment = () => {
 	return process.env.NODE_ENV || 'dev'
+}
+
+/**
+ * Returns the NWJS Builder platform which is different from the Node standards
+ * it's used everywhere else (it actually merges platform and architecture)
+ * @param {String} nodePlatform - Nodejs platform.
+ * @param {String} nodeArch - Nodejs architecture.
+ * @return {String}
+ */
+const getNWBPlatform = (nodePlatform, nodeArch) => {
+  let nwbPlatform = '';
+  switch(nodePlatform) {
+    case 'darwin':
+      nwbPlatform += 'osx'
+      break
+    case 'win32':
+      nwbPlatform += 'win'
+      break
+    case 'linux':
+      nwbPlatform += 'linux'
+      break
+    default:
+      break
+  }
+  switch(nodeArch) {
+    case 'ia32':
+      nwbPlatform += '32'
+      break
+    case 'x64':
+      nwbPlatform += '64'
+      break
+    default:
+      break
+  }
+  return nwbPlatform
 }
 
 /**
@@ -69,48 +100,27 @@ const getUrlScheme = (baseScheme) => {
 }
 
 /**
- * Identifies what is the path for the package.json of the application, after
- * bundling and based in the current platform.
- * @param {String} platform - Platform to bundle for.
- * @param {String} baseName - Base executable/display name
- * @param {String} output - Absolute path of directory containing bundled app.
- * @return {String}
- */
-const getBundledPackagePath = (platform, baseName, output) => {
-	switch (platform) {
-		case 'win32':
-			return path.resolve(output, 'bundle', 'package.json')
-			break;
-		case 'darwin':
-			return path.resolve(output, 'bundle', `${getExecutableName(baseName)}.app`, 'Contents', 'Resources', 'app.nw', 'package.json')
-			break;
-		case 'linux':
-			return path.resolve(output, 'bundle', 'package.json')
-			break;
-	}
-}
-
-/**
- * Bundles a NWJS application from a `src` to an `output` directory. The final
- * bundle will live inside a folder `bundle` inside the `output` directory.
+ * Bundles a NWJS application from a `src` to an `dist` directory. The final
+ * bundle will live inside a folder `bundle` inside the `dist` directory.
  * @param {String} src - Absolute path of directory containing app source code.
- * @param {String} output - Absolute path of directory to contain bundled app.
+ * @param {String} dist - Absolute path of directory to contain bundled app.
  * @return {Promise}
  */
-const build = async (src, output) => {
+const bundle = async (src, dist, nwbPlatform) => {
 	const appPkg = require(path.resolve(src, 'package.json'))
 	// bundle source code
 	await new Promise((resolve, reject) => {
 		NWB.commands.nwbuild(
 			src,
 			{
-				outputDir: output,
+        platforms: nwbPlatform,
+				outputDir: dist,
 				version: getNwjsVersion(appPkg['nwjs-version']),
 				outputName: 'bundle',
 				executableName: getExecutableName(appPkg['executable-name']),
 				sideBySide: true,
 				macIcns: path.resolve(src, 'nwjs-assets', 'darwin', 'icon.icns')
-				// Disavbled windows icon, see manaul resourcehacker call below
+				// Disabled windows icon, see manaul resourcehacker call below
 				// winIco         : path.resolve(PLATFORM_ASSETS_DIR, 'icon.ico'),
 			},
 			error => {
@@ -125,23 +135,13 @@ const build = async (src, output) => {
 
 /**
  * Updates the bundled `package.json` manifest file on the bundled nwjs source
- * code. This action is responsible for updating the version and names that are
+ * code. This action is responsible for updating names and urls that are
  * sensitive to the environment being built (dev, stage, production).
- * @param {String} platform - Platform to bundle for.
- * @param {String} src - Absolute path of directory containing app source code.
- * @param {String} output - Absolute path of directory containing bundled app.
+ * @param {String} outputPackagePath - Absolute path of bundled app's
+ *  package.json.
  */
-const updatePackageManifest = async (platform, src, output) => {
-	const outputPackage = JSON.parse(await fs.readFile((path.resolve(src, 'package.json'))))
-	const srcPackage = JSON.parse(await fs.readFile((path.resolve('./', 'package.json'))))
-	const outputPackagePath = getBundledPackagePath(
-		platform,
-		outputPackage['display-name'],
-		output
-	)
-	// Writes the version from `package.json` from current project running the
-	// bundle cmmand to the one on the bundled app.
-	outputPackage.version = srcPackage.version
+const updatePackageManifest = async (outputPackagePath) => {
+  const outputPackage = require(outputPackagePath)
 	// Rewrite `autoupdate` url
 	outputPackage['autoupdate'] = outputPackage['autoupdate'][getEnvironment()]
 	// Rewrite `display-name` and `executable-name`
@@ -151,7 +151,6 @@ const updatePackageManifest = async (platform, src, output) => {
 	outputPackage['url-scheme'] = getUrlScheme(outputPackage['url-scheme'])
 	// Rewrite `nwjs-version`
 	outputPackage['nwjs-version'] = getNwjsVersion(outputPackage['nwjs-version'])
-
 	await fs.writeFile(
 		outputPackagePath,
 		JSON.stringify(outputPackage, null, '\t')
@@ -159,109 +158,45 @@ const updatePackageManifest = async (platform, src, output) => {
 }
 
 /**
- * Downloads Resource Hacker to the same directory where this file is located
- * on a folder called `rh`
- */
-const downloadResourceHacker = async () => {
-	await rimraf(path.resolve(__dirname, 'rh'))
-	await fs.mkdir(path.resolve(__dirname, 'rh'))
-	await download(
-		process.env.RESOURCE_HACKER_URL || 'http://www.angusj.com/resourcehacker/resource_hacker.zip',
-		path.resolve(__dirname, 'rh', 'rh.zip')
-	)
-	await unzip(
-		path.resolve(__dirname, 'rh', 'rh.zip'),
-		path.resolve(__dirname, 'rh')
-	)
-}
-
-/**
- * Download and run Resource Hacker to change icon of bundled executable.
- * @param {String} src - Absolute path of directory containing bundled app.
- */
-const resourceHacker = async (src) => {
-	// NWB calls ResourceHacker internally (by using the node-resourcehacker
-	// module). But as this module hasn't been updated to the new command line
-	// arguments of ResourceHacker.exe, we will download our own binary and call
-	// it manually
-	// download and unzinp Resource Hacker
-	await downloadResourceHacker()
-	const appPkg = require(path.resolve(src, 'bundle', 'package.json'))
-	execute(({ exec }) => {
-		return exec(
-			`"${path.resolve(__dirname, 'rh', 'ResourceHacker.exe')}" ` +
-			`-open "${path.resolve(src, 'bundle', `${appPkg['executable-name']}.exe`)}" ` +
-			`-save "${path.resolve(src, 'bundle', `${appPkg['executable-name']}.exe`)}" ` +
-			'-action addoverwrite ' +
-			`-res "${path.resolve(src, 'bundle', 'nwjs-assets', 'win32', 'icon.ico')}" ` +
-			'-mask ICONGROUP, IDR_MAINFRAME'
-		)
-	})
-}
-
-/**
- * Manually fix broken symbolic links created by NWJS on bundled app.
- * @param {String} output - Absolute path of directory to contain bundled app.
- */
-const fixSymbolicLinks = async (output) => {
-	// NWB transforms realtive symlinks into absolute ones, which totally breaks
-	// the application when you run it from another machine. So for now, we will
-	// just manually fix those symlinks
-	execute(async ({ exec }) => {
-		await exec(`
-			cd "$(find ${output} -name "nwjs Framework.framework")"
-			rm "Versions/Current" && ln -s "./A" "./Versions/Current"
-			rm "Helpers" && ln -s "./Versions/Current/Helpers"
-			rm "Internet Plug-Ins" && ln -s "./Versions/Current/Internet Plug-Ins"
-			rm "Libraries" && ln -s "./Versions/Current/Libraries"
-			rm "nwjs Framework" && ln -s "./Versions/Current/nwjs Framework"
-			rm "Resources" && ln -s "./Versions/Current/Resources"
-			rm "XPCServices" && ln -s "./Versions/Current/XPCServices"
-		`)
-	})
-}
-
-/**
- * Register URL Scheme on OSX by updating `Info.plist` file.
- * @param {String} src - Absolute path of directory containing app source code.
- * @param {String} output - Absolute path of directory to contain bundled app.
- */
-const registerUrlSchemeDarwin = async (src, output) => {
-	// Register the app url scheme, by modifying the Info.plist
-	// eslint-disable-next-line global-require,import/no-extraneous-dependencies
-	const plist = require('plist')
-	const outputPackage = JSON.parse(await fs.readFile(path.resolve(src, 'package.json')))
-	const appPkg = require(getBundledPackagePath(
-		'darwin',
-		outputPackage['display-name'],
-		output
-	))
-	const plistPath = path.resolve(output, 'bundle', `${appPkg['executable-name']}.app`, 'Contents', 'Info.plist')
-	const plistObject = plist.parse((await fs.readFile(plistPath, 'utf8')).toString())
-	plistObject.CFBundleURLTypes.push({
-		CFBundleURLName    : `${appPkg['executable-name']} URL`,
-		CFBundleURLSchemes : [appPkg['url-scheme']]
-	})
-	await fs.writeFile(plistPath, plist.build(plistObject))
-}
-
-/**
  * Bundles and adjust bundled source according with platform.
  * @param {String} src - Absolute path of directory containing app source code.
- * @param {String} output - Absolute path of directory to contain bundled app.
+ * @param {String} dist - Absolute path of directory to contain bundled app.
  * @param {String} platform - Platform to bundle for.
  * @param {String} architecture - Architecture to bundle for.
  */
-module.exports = async (src, output, platform, architecture) => {
-	await build(src, output)
-	await updatePackageManifest(platform, src, output)
+module.exports = async (src, dist, platform, architecture) => {
+  // NWB uses a different platform format that merges platform and architecture
+  let nwbPlatform = getNWBPlatform(platform, architecture)
+  // Bundle app
+	await bundle(src, dist, nwbPlatform)
+
 	if (platform == 'win32') {
-		await resourceHacker(output)
+    const bundleWin32 = require('./bundle-win32')
+    let bundledPackagePath = bundleWin32.getBundledPackagePath(dist)
+    await updatePackageManifest(bundledPackagePath)
+		await bundleWin32.resourceHacker(dist)
 	}
+
 	if (platform == 'darwin') {
-		await fixSymbolicLinks(output)
-		await registerUrlSchemeDarwin(src, output)
+    const bundleDarwin = require('./bundle-darwin')
+    // The "source" package has important information such as `executable-name`.
+    // Without knowing before hand the executable name, it's impossible to know
+    // where the bundled `package.json` will be on macos.
+    let srcPackagePath = path.resolve(src, 'package.json')
+    let srcPackage = require(srcPackagePath)
+    let bundledPackagePath = bundleDarwin.getBundledPackagePath(
+      dist, getExecutableName(srcPackage['executable-name'])
+    )
+    await updatePackageManifest(bundledPackagePath)
+		await bundleDarwin.fixSymbolicLinks(dist)
+		// To make packaging easier, let's copy the bundled `package.json` to the
+		// root of `dist/bundle`
+		await fs.copyFile(
+			bundledPackagePath,
+			path.resolve(dist, 'bundle', 'package.json')
+		)
 	}
+
 	if (platform == 'linux') {
 		console.log('Nothing to do on linux')
 	}
