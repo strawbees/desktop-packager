@@ -147,10 +147,6 @@ Function installDrivers
 	${EndIf}
 FunctionEnd
 
-Function .onInit
-	SetOutPath $INSTDIR
-FunctionEnd
-
 # default section start
 Section "${APP_NAME}" AppCode
 	Call killCode
@@ -196,6 +192,13 @@ Function checkRequiredComponents
 			Abort
 		next2:
 	${EndIf}
+FunctionEnd
+
+Function .onInit
+	SetOutPath $INSTDIR
+	${GetSize} "${SOURCE_PATH}" "/S=0K" $0 $1 $2
+	SectionSetSize ${AppCode} $0
+	SectionSetSize ${QuirkbotDrivers} 15
 FunctionEnd
 
 # app dialogs
