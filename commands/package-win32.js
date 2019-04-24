@@ -2,6 +2,7 @@ const path = require('path')
 const fs = require('fs').promises
 const execute = require('../utils/execute')
 const download = require('../utils/download')
+const folderSize = require('../utils/folderSize')
 
 const assetsFolder = path.resolve(__dirname, '..', 'assets', 'win32')
 const nsiTemplatePath = path.resolve(assetsFolder, 'installer.template.nsi')
@@ -18,8 +19,7 @@ const downloadDriver = async (url, filename) => {
 }
 
 const calculateInstallationSize = async (src) => {
-	const fileStatus = await fs.stat(src) // in bytes
-	return fileStatus.size / 1000.0 // in Kilobytes
+	return await folderSize(src) / 1024 // in Kilobytes
 }
 
 const bakeNsiFile = async (appPkg, src) => {
@@ -30,7 +30,7 @@ const bakeNsiFile = async (appPkg, src) => {
 		.split('{{APP_VERSION}}').join(appPkg.version)
 		.split('{{APP_PUBLISHER}}').join(appPkg.publisher)
 		.split('{{APP_URL_SCHEME}}').join(appPkg['url-scheme'])
-		.split('{{APP_SIZE}}').join(calculateInstallationSize(src))
+		.split('{{APP_SIZE}}').join(await calculateInstallationSize(src))
 		.split('{{SOURCE_PATH}}').join(src)
 		.split('{{TEMP_BUILD_PATH}}').join(assetsFolder)
 		.split('{{DRIVER_INSTALLER}}').join(driverInstaller)
