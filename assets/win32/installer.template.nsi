@@ -17,6 +17,7 @@ ManifestDPIAware true
 !define SOURCE_PATH "{{SOURCE_PATH}}"
 !define APP_EXECUTABLE_NAME "{{APP_EXECUTABLE_NAME}}"
 !define APP_URL_SCHEME "{{APP_URL_SCHEME}}"
+!define APP_SIZE "{{APP_SIZE}}"
 !define DRIVER_INSTALLER "{{DRIVER_INSTALLER}}"
 
 Name "${APP_NAME} ${APP_VERSION}"
@@ -196,8 +197,7 @@ FunctionEnd
 
 Function .onInit
 	SetOutPath $INSTDIR
-	${GetSize} "${SOURCE_PATH}" "/S=0K" $0 $1 $2
-	SectionSetSize ${AppCode} $0
+	SectionSetSize ${AppCode} ${APP_SIZE}
 	SectionSetSize ${QuirkbotDrivers} 15
 FunctionEnd
 
