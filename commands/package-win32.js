@@ -17,6 +17,11 @@ const downloadDriver = async (url, filename) => {
 	await download(url, path.resolve(driverFolderPath, filename))
 }
 
+const calculateInstallationSize = async (src) => {
+	const fileStatus = await fs.stat(src) // in bytes
+	return fileStatus.size / 1000.0 // in Kilobytes
+}
+
 const bakeNsiFile = async (appPkg, src) => {
 	let driverInstaller = appPkg.driver ? appPkg.driver.filename : ''
 	const template = (await fs.readFile(nsiTemplatePath)).toString()
@@ -25,6 +30,7 @@ const bakeNsiFile = async (appPkg, src) => {
 		.split('{{APP_VERSION}}').join(appPkg.version)
 		.split('{{APP_PUBLISHER}}').join(appPkg.publisher)
 		.split('{{APP_URL_SCHEME}}').join(appPkg['url-scheme'])
+		.split('{{APP_SIZE}}').join(calculateInstallationSize(src))
 		.split('{{SOURCE_PATH}}').join(src)
 		.split('{{TEMP_BUILD_PATH}}').join(assetsFolder)
 		.split('{{DRIVER_INSTALLER}}').join(driverInstaller)
