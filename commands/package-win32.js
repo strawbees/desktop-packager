@@ -19,7 +19,7 @@ const downloadDriver = async (url, filename) => {
 }
 
 const calculateInstallationSize = async (src) => {
-	return folderSize(src) / 1000.0 // in Kilobytes
+	return await folderSize(src) / 1024 // in Kilobytes
 }
 
 const bakeNsiFile = async (appPkg, src) => {
