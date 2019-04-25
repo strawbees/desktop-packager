@@ -92,7 +92,7 @@ Bundled `NWJS` source code. It should contain the correct `NWJS` version and the
 
 For example, if you run the following command on a Windows machine (PowerShell) you will get a bundled app for stage environment inside the `.\build\bundle` folder:
 
-```
+```ps
 $env:NODE_ENV='stage'
 desktop-packager bundle --source .\myapp --output .\build
 ```
@@ -103,7 +103,7 @@ This is a folder for the "packaged" application. It will create a folder for the
 
 For example, if you have a bundled app on `.\build` folder you can run (PowerShell on Windows x86):
 
-```
+```shell
 desktop-packager package --source .\build\bundle --output .\build
 ```
 
@@ -130,3 +130,59 @@ Once `signtool` is available from the `CMD` or `PowerShell`:
 - [Install and activate SafeNet driver and client](https://knowledge.digicert.com/solution/SO27164.html#attach)
 - Connect USB token
 - Run `desktop-packager sign -f "PATH TO FILE"` and behind the scenes it will select the current platform (assuming `Windows 7 x86`) and run the appropriate `signtool` command.
+
+Alternatively you can use the DigiCert tool for signing apps (recommended).
+
+### MacOS
+
+On MacOS you can sign your apps and installers with the `codesign` command line that comes with `XCode`.
+
+- Install XCode
+- Generate (if needed) and download certificates on [Apple's Developer Dashboard](https://developer.apple.com/account/mac/certificate/)
+- Add the downloaded certificates to your keychain (double click it)
+- Find out your developer id: `security find-identity`
+- Export your developer id as environment variable for your current session with `export IDENTITY="your developer id here"`
+- Run `desktop-packager sign -f "PATH TO FILE"` and behind the scenes it will select the current platform and run the appropriate `codesign` command.
+
+Alternatively you can run `codesign` manually as follows (recommended):
+
+```shell
+codesign --force --verify --verbose --sign "$IDENTITY" "$APP"
+```
+
+Where `$IDENTITY` is your developer id and `$APP` is the bundled `.app` path.
+
+For example:
+
+```shell
+export IDENTITY="4E9E4506CB7AF7AE8FAEB5DB219735484126D652"
+codesign --force --verify --verbose --sign  "$IDENTITY" ./dist/bundle/Strawbees CODE.app
+```
+
+<!-- https://github.com/nwjs/grunt-nw-builder/issues/9#issuecomment-30396482 -->
+
+#### Setting up certificates
+
+First of all you must follow the instructions to download the necessary certifications and add to your keychain. Check the documentation for that on [Apple's Developer Account Help](https://help.apple.com/developer-account/#/deveedc0daa0).
+
+You'll need to create a `macOS` certificate of type `Production: Developer ID` and for both `Developer ID Application` and `Developer ID Installer` (two different certificates).
+
+Once you selected it, follow the instructions to create a `CSR` file and upload it to the website.
+
+```
+To manually generate a Certificate, you need a Certificate Signing Request (CSR) file from your Mac. To create a CSR file, follow the instructions below to create one using Keychain Access.
+
+Create a CSR file.
+In the Applications folder on your Mac, open the Utilities folder and launch Keychain Access.
+
+Within the Keychain Access drop down menu, select Keychain Access > Certificate Assistant > Request a Certificate from a Certificate Authority.
+
+In the Certificate Information window, enter the following information:
+In the User Email Address field, enter your email address.
+In the Common Name field, create a name for your private key (e.g., John Doe Dev Key).
+The CA Email Address field should be left empty.
+In the "Request is" group, select the "Saved to disk" option.
+Click Continue within Keychain Access to complete the CSR generating process.
+```
+
+After that you should be able to download the `cert` files and by double clicking them you can add to your keychain.
