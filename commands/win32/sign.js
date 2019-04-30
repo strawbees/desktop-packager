@@ -1,4 +1,4 @@
-const execute = require('../utils/execute')
+const execute = require('../../utils/execute')
 
 const runSignTool = async (file) => {
 	return new Promise((resolve, reject) => {

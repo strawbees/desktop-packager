@@ -1,23 +1,6 @@
 const path = require('path')
 const fs = require('fs').promises
-const packageLinux = require('./package-linux')
 const zipdir = require('../utils/zipdir')
-
-/**
- * Return an extension for the final packaged binary based on `platform`.
- * @param {String} platform - Current packaging platform
- */
-const addExtension = (platform) => {
-	if (platform == 'win32') {
-		return '.exe'
-	}
-	if (platform == 'darwin') {
-		return '.dmg'
-	}
-	if (platform == 'linux') {
-		return '.zip'
-	}
-}
 
 /**
  * Packages a bundled NWJS app into an executable binary, compress the source
@@ -25,8 +8,7 @@ const addExtension = (platform) => {
  * source. A directory structure will be created at the `output` to separate
  * files by `platform`, `architecture` and version.
  * @param {String} src - Absolute path of directory containing bundled app.
- * @param {String} dist - Absolute path of directory to contain packaged app,
- * compressed source and "latest" manifest file.
+ * @param {String} dist - Absolute path of distribution directory.
  * @param {String} platform - Platform to bundle for.
  * @param {String} architecture - Architecture to bundle for.
  */
@@ -51,13 +33,11 @@ module.exports = async (src, dist, platform, architecture) => {
 
 	// Package app according with platform
 	if (platform == 'win32') {
-		const packageWindowsInstaller = require('./package-win32')
-		// Create windows installer
+		const packageWindowsInstaller = require('./win32/package')
 		await packageWindowsInstaller(src, outputInstallerPath)
 	}
 	if (platform == 'darwin') {
-		const packageDarwinDmg = require('./package-darwin')
-		// Create macos dmg
+		const packageDarwinDmg = require('./darwin/package')
 		await packageDarwinDmg(
 			src, // Folder containing bundled app
 			appPkg, // Bundled manifest object (`package.json` of bundled app)
@@ -69,21 +49,55 @@ module.exports = async (src, dist, platform, architecture) => {
 		await packageLinux(src, outputInstallerPath)
 	}
 
-	// Compress source code
-	await zipdir(src, outputSourcePath, '')
+	await compressSource(src, outputSourcePath)
+	await createManifest(
+		outputManifestPath,
+		appPkg['display-name'],
+		appPkg['version'],
+		outputInstallerPath,
+		outputSourcePath
+	)
+}
 
+/**
+ * Return an extension for the final packaged binary based on `platform`.
+ * @param {String} platform - Current packaging platform
+ */
+const addExtension = (platform) => {
+	if (platform == 'win32') {
+		return '.exe'
+	}
+	if (platform == 'darwin') {
+		return '.dmg'
+	}
+	if (platform == 'linux') {
+		return '.zip'
+	}
+}
+
+/**
+ * Compress source code to use in auto updates
+ * @param {String} src - Source code path.
+ * @param {String} outputSourcePath - Where should the compressed file be created
+ */
+ const compressSource = (src, outputSourcePath) => {
+	// Compress source code
+	return zipdir(src, outputSourcePath, '')
+ }
+
+const createManifest = (outputManifestPath, displayName, version, installerPath, srcPath) => {
 	// Write latest manifest
 	fs.writeFile(
 		outputManifestPath,
 		JSON.stringify({
-			name: appPkg['display-name'],
-			version: appPkg.version,
+			name: displayName,
+			version: version,
 			createdAt: new Date(),
 			installer: {
-				path: `${outputInstallerName}${addExtension(platform)}`
+				path: installerPath
 			},
 			src: {
-				path: `${outputInstallerName}-src.zip`
+				path: srcPath
 			}
 		})
 	)

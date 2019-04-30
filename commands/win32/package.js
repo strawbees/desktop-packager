@@ -1,10 +1,10 @@
 const path = require('path')
 const fs = require('fs').promises
-const execute = require('../utils/execute')
-const download = require('../utils/download')
-const folderSize = require('../utils/folderSize')
+const execute = require('../../utils/execute')
+const download = require('../../utils/download')
+const folderSize = require('../../utils/folderSize')
 
-const assetsFolder = path.resolve(__dirname, '..', 'assets', 'win32')
+const assetsFolder = path.resolve(__dirname, '..', '..', 'assets', 'win32')
 const nsiTemplatePath = path.resolve(assetsFolder, 'installer.template.nsi')
 const nsiFilePath = path.resolve(assetsFolder, 'installer.nsi')
 

@@ -1,13 +1,23 @@
 const path = require('path')
 const fs = require('fs').promises
-const execute = require('../utils/execute')
-const unzip = require('../utils/unzip')
-const download = require('../utils/download')
-const rimraf = require('../utils/rimraf')
+const execute = require('../../utils/execute')
+const unzip = require('../../utils/unzip')
+const download = require('../../utils/download')
+const rimraf = require('../../utils/rimraf')
+
+/**
+ * Windows specific bundle steps. This should be executed after NWJS bundle.
+ * @param {String} dist - Absolute path of distribution folder.
+ */
+module.exports = async (dist) => {
+	await downloadResourceHacker()
+	await runResourceHacker(dist)
+}
 
 /**
  * Downloads Resource Hacker to the same directory where this file is located
  * on a folder called `rh`
+ * TODO: Make url a parameter
  */
 const downloadResourceHacker = async () => {
 	await rimraf(path.resolve(__dirname, 'rh'))
@@ -27,13 +37,11 @@ const downloadResourceHacker = async () => {
  * @param {String} dist - Absolute path of directory where app will be bundled
  *  and packaged.
  */
-const resourceHacker = async (dist) => {
+const runResourceHacker = async (dist) => {
 	// NWB calls ResourceHacker internally (by using the node-resourcehacker
 	// module). But as this module hasn't been updated to the new command line
 	// arguments of ResourceHacker.exe, we will download our own binary and call
 	// it manually
-	// download and unzinp Resource Hacker
-	await downloadResourceHacker()
 	const appPkg = require(path.resolve(dist, 'bundle', 'package.json'))
 	execute(({ exec }) => {
 		return exec(
@@ -45,20 +53,4 @@ const resourceHacker = async (dist) => {
 			'-mask ICONGROUP, IDR_MAINFRAME'
 		)
 	})
-}
-
-/**
- * Returns the absolute path where the `package.json` should be on bundled app.
- * @param {String} dist - Absolute path of directory where app will be bundled
- *  and packaged.
- * @return {String}
- */
-const getBundledPackagePath = (dist) => {
-    return path.resolve(dist, 'bundle', 'package.json')
-}
-
-module.exports = {
-  downloadResourceHacker,
-  resourceHacker,
-  getBundledPackagePath
 }

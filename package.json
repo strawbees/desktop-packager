@@ -1,6 +1,6 @@
 {
     "name": "@strawbees/desktop-packager",
-    "version": "0.4.3",
+    "version": "0.5.0",
     "description": "Command line tool to automate the building, packaging and deploying of Strawbees desktop apps",
     "main": "desktop-packager.js",
     "scripts": {
