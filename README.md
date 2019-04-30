@@ -84,7 +84,7 @@ Another way to call it is to register a script on the project's `package.json`. 
 
 ## File structure
 
-The commands `bundle` and `package` will output directories of files on the given `output` path. Those directories are:
+The commands `bundle` and `package` will output directories of files on the given `output` path. We'll call this `output` folder the *distribution* folder. On the *distribution* folder you will find:
 
 ### `bundle`
 
