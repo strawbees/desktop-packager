@@ -54,8 +54,8 @@ module.exports = async (src, dist, platform, architecture) => {
 		outputManifestPath,
 		appPkg['display-name'],
 		appPkg['version'],
-		outputInstallerPath,
-		outputSourcePath
+		`${outputInstallerName}${addExtension(platform)}`,
+		`${outputInstallerName}-src`,
 	)
 }
 
@@ -85,7 +85,7 @@ const addExtension = (platform) => {
 	return zipdir(src, outputSourcePath, '')
  }
 
-const createManifest = (outputManifestPath, displayName, version, installerPath, srcPath) => {
+const createManifest = (outputManifestPath, displayName, version, installerName, srcName) => {
 	// Write latest manifest
 	fs.writeFile(
 		outputManifestPath,
@@ -94,10 +94,10 @@ const createManifest = (outputManifestPath, displayName, version, installerPath,
 			version: version,
 			createdAt: new Date(),
 			installer: {
-				path: installerPath
+				path: installerName
 			},
 			src: {
-				path: srcPath
+				path: srcName
 			}
 		})
 	)
