@@ -55,7 +55,7 @@ module.exports = async (src, dist, platform, architecture) => {
 		appPkg['display-name'],
 		appPkg['version'],
 		`${outputInstallerName}${addExtension(platform)}`,
-		`${outputInstallerName}-src`,
+		`${outputInstallerName}-src.zip`,
 	)
 }
 
