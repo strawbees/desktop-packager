@@ -1,6 +1,6 @@
 {
     "name": "@strawbees/desktop-packager",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "description": "Command line tool to automate the building, packaging and deploying of Strawbees desktop apps",
     "main": "desktop-packager.js",
     "scripts": {
@@ -25,6 +25,7 @@
     "dependencies": {
         "adm-zip": "^0.4.13",
         "archiver": "^3.0.0",
+        "chmodr": "^1.2.0",
         "commander": "^2.19.0",
         "nwjs-builder": "^1.14.0",
         "request": "^2.88.0"

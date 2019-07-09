@@ -165,7 +165,7 @@ codesign --force --verify --verbose --sign  "$IDENTITY" ./dist/bundle/Strawbees 
 
 First of all you must follow the instructions to download the necessary certifications and add to your keychain. Check the documentation for that on [Apple's Developer Account Help](https://help.apple.com/developer-account/#/deveedc0daa0).
 
-You'll need to create a `macOS` certificate of type `Production: Developer ID` and for both `Developer ID Application` and `Developer ID Installer` (two different certificates).
+You'll need to create a `macOS` certificate of type `Production: Developer ID` for both `Developer ID Application`.
 
 Once you selected it, follow the instructions to create a `CSR` file and upload it to the website.
 

@@ -2,6 +2,7 @@ const plist = require('plist')
 const path = require('path')
 const fs = require('fs').promises
 const execute = require('../../utils/execute')
+const chmod = require('../../utils/chmod')
 const {
 	getExecutableName,
 	getUrlScheme
@@ -10,11 +11,12 @@ const {
 /**
  * MacOS specific bundle steps. This should be executed after NWJS bundle.
  * @param {String} dist - Absolute path of distribution folder.
- * @param {Object} pkg - Source codes's `package.json` object.
+ * @param {Object} pkg - Source code's `package.json` object.
  */
 module.exports = async (dist, pkg) => {
 	await fixSymbolicLinks(dist)
 	await registerUrlScheme(dist, pkg)
+  await fixFolderPermissions(dist, pkg)
 }
 
 /**
@@ -63,4 +65,18 @@ const registerUrlScheme = async (dist, pkg) => {
 		CFBundleURLSchemes: [getUrlScheme(pkg['url-scheme'])]
 	})
 	return fs.writeFile(plistPath, plist.build(plistObject))
+}
+
+
+const fixFolderPermissions = async (dist, pkg) => {
+  const executableName = pkg['executable-name']
+  const folderPath = path.resolve(
+		dist,
+		'bundle',
+		`${getExecutableName(executableName)}.app`,
+    'Contents',
+		'Resources',
+		'app.nw'
+	)
+  return chmod(folderPath, 0755)
 }
