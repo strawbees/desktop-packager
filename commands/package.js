@@ -11,9 +11,10 @@ const zipdir = require('../utils/zipdir')
  * @param {String} dist - Absolute path of distribution directory.
  * @param {String} platform - Platform to bundle for.
  * @param {String} architecture - Architecture to bundle for.
+ * @param {Boolean} notarizeFlag - If the app should be sent for notarization.
  */
-module.exports = async (src, dist, platform, architecture) => {
-	console.log('packaging', src, dist, platform, architecture)
+module.exports = async (src, dist, platform, architecture, notarizeFlag) => {
+	console.log('packaging', src, dist, platform, architecture, notarizeFlag)
 
 	// Bundled application package json
 	const appPkg = require(path.resolve(src, 'package.json'))
@@ -41,7 +42,8 @@ module.exports = async (src, dist, platform, architecture) => {
 		await packageDarwinDmg(
 			src, // Folder containing bundled app
 			appPkg, // Bundled manifest object (`package.json` of bundled app)
-			outputInstallerPath // Final file path for `dmg`
+			outputInstallerPath // Final file path for `dmg`,
+			notarizeFlag
 		)
 	}
 	if (platform == 'linux') {

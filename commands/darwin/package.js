@@ -159,21 +159,23 @@ const createDmg = async (outputInstallerPath) => {
 	})
 }
 
-module.exports = async (src, appPkg, outputInstallerPath) => {
+module.exports = async (src, appPkg, outputInstallerPath, notarizeFlag) => {
 	console.log('packaging for darwin')
 	await bakeDmgConfig(src, appPkg)
-	// Notarize
-	await notarize(
-		src,
-		outputInstallerPath,
-		appPkg['executable-name'],
-		appPkg.nwjsBuilder.bundleIdentifier,
-		process.env.APPLE_DEVELOPER_USERNAME,
-		process.env.APPLE_DEVELOPER_PASSWORD,
-		process.env.APPLE_DEVELOPER_PROVIDER
-	)
-	// staple the app after notarized
-	await staple(src, appPkg['executable-name'])
+	if (notarizeFlag) {
+		// Notarize
+		await notarize(
+			src,
+			outputInstallerPath,
+			appPkg['executable-name'],
+			appPkg.nwjsBuilder.bundleIdentifier,
+			process.env.APPLE_DEVELOPER_USERNAME,
+			process.env.APPLE_DEVELOPER_PASSWORD,
+			process.env.APPLE_DEVELOPER_PROVIDER
+		)
+		// staple the app after notarized
+		await staple(src, appPkg['executable-name'])
+	}	
 	// crate the dmg, ready to be published
 	await createDmg(outputInstallerPath)
 }

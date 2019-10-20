@@ -8,6 +8,7 @@ program
 	.option('-o, --output <path>', 'packaged app ouput folder')
 	.option('-p, --platform <platform>', 'Specify the platform')
 	.option('-a, --architecture <architecture>', 'Specify the architecture')
+	.option('-n, --notarize <notarize>', 'If should send app for notarization')
 
 program.parse(process.argv)
 
@@ -15,5 +16,6 @@ const SOURCE = program.source || './dist/bundle'
 const OUTPUT = program.output || './dist'
 const PLATFORM = program.platform || process.platform
 const ARCHITECTURE = program.architecture || process.arch
+const NOTARIZE = program.notarize
 
-package(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE)
+package(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE, NOTARIZE)
