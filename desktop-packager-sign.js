@@ -4,12 +4,12 @@ const path = require('path')
 const sign = require('./commands/sign')
 
 program
-	.option('-f, --file <file>', 'file to sign')
+	.option('-s, --source <path>', 'bundled application folder')
 	.option('-p, --platform <platform>', 'which platform to sign (win32 or darwin)')
 
 program.parse(process.argv)
 
-const FILE = program.file
+const SOURCE = program.source || './dist/bundle'
 const PLATFORM = program.platform || process.platform
 
-sign(path.resolve(FILE), PLATFORM)
+sign(path.resolve(SOURCE), PLATFORM)

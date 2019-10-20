@@ -16,20 +16,24 @@ const run = (script, cmd, opt = {}, promise) => {
 	const fn = (resolve, reject) => {
 		// eslint-disable-next-line no-console
 		console.log(`-> ${cmd}`)
+		let stdout = ''
+		let stderr = ''
 		const child = script(cmd, Object.assign({}, opt, options))
-		child.stdout.on('data', data =>
+		child.stdout.on('data', data => {
 			process.stdout.write(`${data}`)
-		)
-		child.stderr.on('data', data =>
+			stdout +=data
+		})
+		child.stderr.on('data', data => {
 			process.stdout.write(`stderr: ${data}`)
-		)
+			stderr +=data
+		})
 		child.on('close', code => {
 			// eslint-disable-next-line no-console
 			console.log(`child process exited with code ${code}`)
 			if (code === 0) {
-				resolve()
+				resolve({ stdout, stderr })
 			} else {
-				reject(code)
+				reject({ code, stdout, stderr })
 			}
 		})
 		return child

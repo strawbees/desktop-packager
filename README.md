@@ -134,38 +134,10 @@ Once `signtool` is available from the `CMD` or `PowerShell`:
 Alternatively you can use the DigiCert tool for signing apps (recommended).
 
 ### MacOS
-
-On MacOS you can sign your apps and installers with the `codesign` command line that comes with `XCode`.
-
-- Install XCode
-- Generate (if needed) and download certificates on [Apple's Developer Dashboard](https://developer.apple.com/account/mac/certificate/)
-- Add the downloaded certificates to your keychain (double click it)
-- Find out your developer id: `security find-identity`
-- Export your developer id as environment variable for your current session with `export IDENTITY="your developer id here"`
-- Run `desktop-packager sign -f "PATH TO FILE"` and behind the scenes it will select the current platform and run the appropriate `codesign` command.
-
-Alternatively you can run `codesign` manually as follows (recommended):
-
-```shell
-codesign --force --verify --verbose --sign "$IDENTITY" "$APP"
-```
-
-Where `$IDENTITY` is your developer id and `$APP` is the bundled `.app` path.
-
-For example:
-
-```shell
-export IDENTITY="4E9E4506CB7AF7AE8FAEB5DB219735484126D652"
-codesign --force --verify --verbose --sign  "$IDENTITY" ./dist/bundle/Strawbees CODE.app
-```
-
-<!-- https://github.com/nwjs/grunt-nw-builder/issues/9#issuecomment-30396482 -->
-
 #### Setting up certificates
-
 First of all you must follow the instructions to download the necessary certifications and add to your keychain. Check the documentation for that on [Apple's Developer Account Help](https://help.apple.com/developer-account/#/deveedc0daa0).
 
-You'll need to create a `macOS` certificate of type `Production: Developer ID` for both `Developer ID Application`.
+You'll need to create a `macOS` certificate of type `Production: Developer ID` for `Developer ID Application`.
 
 Once you selected it, follow the instructions to create a `CSR` file and upload it to the website.
 
@@ -186,3 +158,31 @@ Click Continue within Keychain Access to complete the CSR generating process.
 ```
 
 After that you should be able to download the `cert` files and by double clicking them you can add to your keychain.
+
+#### Signing
+On MacOS you can sign your apps and installers with the `codesign` command line that comes with `XCode`.
+
+- Install XCode
+- Generate (if needed) and download certificates on [Apple's Developer Dashboard](https://developer.apple.com/account/mac/certificate/)
+- Add the downloaded certificates to your keychain (double click it)
+- Find out your developer id: `$ security find-identity`
+- Export your developer id as environment variable for your current session with `export APPLE_DEVELOPER_IDENTITY="your developer id here"`
+- Run `desktop-packager sign -f "PATH TO FILE"` and behind the scenes it will select the current platform and run the appropriate `codesign` command.
+
+Where `$APPLE_DEVELOPER_IDENTITY` is your developer id and `$APP` is the bundled `.app` path.
+
+For example:
+
+```shell
+export APPLE_DEVELOPER_IDENTITY="4E9E4506CB7AF7AE8FAEB5DB219735484126D652"
+desktop-packager sign -f "./dist/bundle/Strawbees CODE.app"
+```
+
+#### Notarizing
+After the app has been signed, it should be submitted for notarization.
+
+1. Package the application
+2. Send it to apple's notarization service
+3. Poll every minuted for the status of notarization
+	- on reject we check the logs apple sends us
+	- on success we staple the installer
