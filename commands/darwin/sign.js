@@ -1,11 +1,10 @@
 const execute = require('../../utils/execute')
 
-const runSignTool = async (file) => {
+const runSignTool = async (app) => {
 	return new Promise((resolve, reject) => {
 		execute(async ({ exec }) => {
 			try {
-				await exec(`codesign --force --verify --verbose --sign "${process.env.IDENTITY}" "${file}"`)
-				await exec(`codesign -vvv -d "${file}"`)
+				await exec(`APP="${app}" sh ${__dirname}/../../assets/darwin/codesign.sh`)
 				resolve()
 			} catch (err) {
 				reject(err)
@@ -14,6 +13,6 @@ const runSignTool = async (file) => {
 	})
 }
 
-module.exports = async (file) => {
-	await runSignTool(file)
+module.exports = async (app) => {
+	await runSignTool(app)
 }
