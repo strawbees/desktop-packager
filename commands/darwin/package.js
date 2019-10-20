@@ -38,6 +38,14 @@ const notarize = async (bundlePath, outputInstallerPath, executableName, bundleI
 	const requestUUID = await uploadToNotarizationServer(zipPath, bundleIdentifier, developer, password, provider)
 	console.log('The RequestUUID is: ', requestUUID)
 
+	// Delete the zip
+	try {
+		await fs.access(zipPath)
+		await fs.unlink(zipPath)
+	} catch(e) {
+		// File does not exist
+	}
+
 	// Poll information about the resquest
 	let status = ''
 	while (true) {
