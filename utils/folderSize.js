@@ -11,16 +11,15 @@ const readSizeRecursive = async (filePath) => {
 	const stats = await fs.stat(path.resolve(filePath))
 	if (stats.isDirectory()) {
 		let total = 0
-		let list = await fs.readdir(filePath)
+		const list = await fs.readdir(filePath)
 		await asyncForEach(list, async (dirItem) => {
 			total += await readSizeRecursive(
 				path.resolve(filePath, dirItem)
 			)
 		})
 		return total
-	} else {
-		return stats.size
 	}
+	return stats.size
 }
 
 module.exports = readSizeRecursive

@@ -3,7 +3,7 @@ const request = require('request')
 
 module.exports = async (url, path) => {
 	await new Promise((resolve, reject) => {
-		let file = fs.createWriteStream(path)
+		const file = fs.createWriteStream(path)
 		file.on('finish', () => {
 			file.close(async (err) => {
 				if (err) {

@@ -7,9 +7,7 @@ const fs = require('fs').promises
 * `production`
 * @return {String}
 */
-const getEnvironment = () => {
-	return process.env.NODE_ENV || 'dev'
-}
+const getEnvironment = () => process.env.NODE_ENV || 'dev'
 
 /**
 * Identifies what is the NWJS version that should be installed based on the
@@ -20,9 +18,8 @@ const getEnvironment = () => {
 const getNwjsVersion = (baseVersion) => {
 	if (getEnvironment() === 'production') {
 		return baseVersion
-	} else {
-		return `${baseVersion}-sdk`
 	}
+	return `${baseVersion}-sdk`
 }
 
 /**
@@ -34,14 +31,12 @@ const getNwjsVersion = (baseVersion) => {
 const getExecutableName = (baseName) => {
 	switch (getEnvironment()) {
 		case 'dev':
+		default:
 			return `DEV ${baseName}`
-			break;
 		case 'stage':
 			return `STAGE ${baseName}`
-			break;
 		case 'production':
 			return baseName
-			break;
 	}
 }
 
@@ -53,14 +48,12 @@ const getExecutableName = (baseName) => {
 const getUrlScheme = (baseScheme) => {
 	switch (getEnvironment()) {
 		case 'dev':
-		return `${baseScheme}-dev`
-		break;
+		default:
+			return `${baseScheme}-dev`
 		case 'stage':
-		return `${baseScheme}-stage`
-		break;
+			return `${baseScheme}-stage`
 		case 'production':
-		return baseScheme
-		break;
+			return baseScheme
 	}
 }
 
@@ -74,7 +67,7 @@ const getUrlScheme = (baseScheme) => {
 const updatePackageManifest = async (outputPackagePath) => {
 	const outputPackage = require(outputPackagePath)
 	// Rewrite `autoupdate` url
-	outputPackage['autoupdate'] = outputPackage['autoupdate'][getEnvironment()]
+	outputPackage.autoupdate = outputPackage.autoupdate[getEnvironment()]
 	// Rewrite `display-name` and `executable-name`
 	outputPackage['display-name'] = getExecutableName(outputPackage['display-name'])
 	outputPackage['executable-name'] = getExecutableName(outputPackage['executable-name'])
@@ -93,9 +86,7 @@ const updatePackageManifest = async (outputPackagePath) => {
  * @param {String} dist - Absolute path of distribution directory.
  * @return {String}
  */
-const getWin32PackagePath = (dist) => {
-	return path.resolve(dist, 'bundle', 'package.json')
-}
+const getWin32PackagePath = (dist) => path.resolve(dist, 'bundle', 'package.json')
 
 /**
  * Returns the absolute path where the `package.json` should be on bundled app.
@@ -104,17 +95,15 @@ const getWin32PackagePath = (dist) => {
  * @param {Object} pkg - Source codes's `package.json` object.
  * @return {String}
  */
-const getDarwinPackagePath = (dist, pkg) => {
-	return path.resolve(
-		dist,
-		'bundle',
-		`${getExecutableName(pkg['executable-name'])}.app`,
-		'Contents',
-		'Resources',
-		'app.nw',
-		'package.json'
-	)
-}
+const getDarwinPackagePath = (dist, pkg) => path.resolve(
+	dist,
+	'bundle',
+	`${getExecutableName(pkg['executable-name'])}.app`,
+	'Contents',
+	'Resources',
+	'app.nw',
+	'package.json'
+)
 
 /**
 * Returns the NWJS Builder platform which is different from the Node standards
@@ -124,8 +113,8 @@ const getDarwinPackagePath = (dist, pkg) => {
 * @return {String}
 */
 const getNWBPlatform = (nodePlatform, nodeArch) => {
-	let nwbPlatform = '';
-	switch(nodePlatform) {
+	let nwbPlatform = ''
+	switch (nodePlatform) {
 		case 'darwin':
 			nwbPlatform += 'osx'
 			break
@@ -136,9 +125,9 @@ const getNWBPlatform = (nodePlatform, nodeArch) => {
 			nwbPlatform += 'linux'
 			break
 		default:
-		break
+			break
 	}
-	switch(nodeArch) {
+	switch (nodeArch) {
 		case 'ia32':
 			nwbPlatform += '32'
 			break
@@ -160,19 +149,19 @@ const getNWBPlatform = (nodePlatform, nodeArch) => {
  * @param {Object} pkg - Source codes's `package.json` object.
 * @return {Promise}
 */
-const bundle = async (src, dist, nwbPlatform, pkg) => {
+const bundle = async (src, dist, nwbPlatform, pkg) =>
 	// bundle source code
-	return new Promise((resolve, reject) => {
+	new Promise((resolve, reject) => {
 		NWB.commands.nwbuild(
 			src,
 			{
-				platforms: nwbPlatform,
-				outputDir: dist,
-				version: getNwjsVersion(pkg['nwjs-version']),
-				outputName: 'bundle',
-				executableName: getExecutableName(pkg['executable-name']),
-				sideBySide: true,
-				macIcns: path.resolve(src, 'nwjs-assets', 'darwin', 'icon.icns')
+				platforms      : nwbPlatform,
+				outputDir      : dist,
+				version        : getNwjsVersion(pkg['nwjs-version']),
+				outputName     : 'bundle',
+				executableName : getExecutableName(pkg['executable-name']),
+				sideBySide     : true,
+				macIcns        : path.resolve(src, 'nwjs-assets', 'darwin', 'icon.icns')
 				// Disabled windows icon, see manaul resourcehacker call below
 				// winIco: path.resolve(PLATFORM_ASSETS_DIR, 'icon.ico'),
 			},
@@ -184,7 +173,7 @@ const bundle = async (src, dist, nwbPlatform, pkg) => {
 			}
 		)
 	})
-}
+
 
 module.exports = {
 	getEnvironment,

@@ -18,12 +18,12 @@ const downloadDriver = async (url, filename) => {
 	await download(url, path.resolve(driverFolderPath, filename))
 }
 
-const calculateInstallationSize = async (src) => {
-	return await folderSize(src) / 1024 // in Kilobytes
-}
+const calculateInstallationSize = async (src) =>
+	await folderSize(src) / 1024 // in Kilobytes
+
 
 const bakeNsiFile = async (appPkg, src) => {
-	let driverInstaller = appPkg.driver ? appPkg.driver.filename : ''
+	const driverInstaller = appPkg.driver ? appPkg.driver.filename : ''
 	const template = (await fs.readFile(nsiTemplatePath)).toString()
 		.split('{{APP_NAME}}').join(appPkg['display-name'])
 		.split('{{APP_EXECUTABLE_NAME}}').join(appPkg['executable-name'])
@@ -34,21 +34,19 @@ const bakeNsiFile = async (appPkg, src) => {
 		.split('{{SOURCE_PATH}}').join(src)
 		.split('{{TEMP_BUILD_PATH}}').join(assetsFolder)
 		.split('{{DRIVER_INSTALLER}}').join(driverInstaller)
-	return  fs.writeFile(nsiFilePath, template)
+	return fs.writeFile(nsiFilePath, template)
 }
 
-const runNSIS = async () => {
-	return new Promise((resolve, reject) => {
-		execute(async ({ exec }) => {
-			try {
-				await exec(`makensis.exe /V4 ${nsiFilePath}`)
-				resolve()
-			} catch(err) {
-				reject(err)
-			}
-		})
+const runNSIS = async () => new Promise((resolve, reject) => {
+	execute(async ({ exec }) => {
+		try {
+			await exec(`makensis.exe /V4 ${nsiFilePath}`)
+			resolve()
+		} catch (err) {
+			reject(err)
+		}
 	})
-}
+})
 
 module.exports = async (src, outputInstallerPath) => {
 	console.log('packaging for windows')
