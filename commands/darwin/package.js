@@ -1,8 +1,7 @@
 const path = require('path')
 const fs = require('fs').promises
-const execute = require('../../utils/execute')
 const appdmg = require('appdmg')
-const plist = require('plist')
+const execute = require('../../utils/execute')
 
 const assetsFolder = path.resolve(__dirname, '..', '..', 'assets', 'darwin')
 const dmgTemplatePath = path.resolve(assetsFolder, 'dmg.json.template')
@@ -42,88 +41,79 @@ const notarize = async (bundlePath, outputInstallerPath, executableName, bundleI
 	try {
 		await fs.access(zipPath)
 		await fs.unlink(zipPath)
-	} catch(e) {
+	} catch (e) {
 		// File does not exist
 	}
 
 	// Poll information about the resquest
 	let status = ''
-	while (true) {
+	while (status !== 'Package Approved') {
 		status = await fetchNotarizationStatus(requestUUID, developer, password)
 		console.log('Package status:', status)
 		if (status === 'Package Approved') {
 			break
 		}
 		if (status === 'Package Invalid') {
-			throw new Error ('Could not notarize')
+			throw new Error('Could not notarize')
 		}
 		await new Promise((r) => setTimeout(r, 15000))
 	}
 }
 
-const zipForNotarization = async (appPath, zipPath) => {
-	return new Promise((resolve, reject) => {
-		execute(async ({ exec }) => {
-			try {
-				await exec(`/usr/bin/ditto -c -k --keepParent "${appPath}" "${zipPath}"`)
-				resolve()
-			} catch (err) {
-				reject(err)
-			}
-
-		})
+const zipForNotarization = async (appPath, zipPath) => new Promise((resolve, reject) => {
+	execute(async ({ exec }) => {
+		try {
+			await exec(`/usr/bin/ditto -c -k --keepParent "${appPath}" "${zipPath}"`)
+			resolve()
+		} catch (err) {
+			reject(err)
+		}
 	})
-}
+})
 
-const uploadToNotarizationServer = async (zipPath, bundleIdentifier, developer, password, provider) => {
-	return new Promise((resolve, reject) => {
-		execute(async ({ exec }) => {
-			try {
-				const { stdout } = await exec(`xcrun altool --notarize-app --primary-bundle-id "${bundleIdentifier}" --username "${developer}" --password "${password}" --asc-provider "${provider}" --file "${zipPath}"`)
-				const firstUploadCheck = 'RequestUUID = '
-				// Extract the RequestUUID
-				if (stdout.indexOf(firstUploadCheck) !== -1) {
-					let parts = stdout.split(firstUploadCheck)
-					parts = parts[1].split('\n')
-					resolve(parts[0])
-					return
-				}
-				reject(new Error ('Could not extract requestUUID'))
-			} catch (err) {
-				// Still try to extract the RequestUUID, in case we try to
-				// upload the same application again
-				const alreadyUploadedCheck = '"The software asset has already been uploaded. The upload ID is '
-				if (err && err.stderr && err.stderr.indexOf(alreadyUploadedCheck) !== -1) {
-					let parts = err.stderr.split(alreadyUploadedCheck)
-					parts = parts[1].split('"')
-					resolve(parts[0])
-					return
-				}
-				reject(err)
-			}
-
-		})
-	})
-}
-
-const fetchNotarizationStatus = async (requestUUID, developer, password) => {
-	return new Promise((resolve, reject) => {
-		execute(async ({ exec }) => {
-			try {
-				const { stdout } = await exec(`xcrun altool --notarization-info "${requestUUID}"  --username "${developer}" --password "${password}"`)
-				let parts = stdout.split('Status Message: ')
-				if (parts.length === 1) {
-					parts = stdout.split('Status: ')
-				}
+const uploadToNotarizationServer = async (zipPath, bundleIdentifier, developer, password, provider) => new Promise((resolve, reject) => {
+	execute(async ({ exec }) => {
+		try {
+			const { stdout } = await exec(`xcrun altool --notarize-app --primary-bundle-id "${bundleIdentifier}" --username "${developer}" --password "${password}" --asc-provider "${provider}" --file "${zipPath}"`)
+			const firstUploadCheck = 'RequestUUID = '
+			// Extract the RequestUUID
+			if (stdout.indexOf(firstUploadCheck) !== -1) {
+				let parts = stdout.split(firstUploadCheck)
 				parts = parts[1].split('\n')
 				resolve(parts[0])
-			} catch (err) {
-				reject(err)
+				return
 			}
-
-		})
+			reject(new Error('Could not extract requestUUID'))
+		} catch (err) {
+			// Still try to extract the RequestUUID, in case we try to
+			// upload the same application again
+			const alreadyUploadedCheck = '"The software asset has already been uploaded. The upload ID is '
+			if (err && err.stderr && err.stderr.indexOf(alreadyUploadedCheck) !== -1) {
+				let parts = err.stderr.split(alreadyUploadedCheck)
+				parts = parts[1].split('"')
+				resolve(parts[0])
+				return
+			}
+			reject(err)
+		}
 	})
-}
+})
+
+const fetchNotarizationStatus = async (requestUUID, developer, password) => new Promise((resolve, reject) => {
+	execute(async ({ exec }) => {
+		try {
+			const { stdout } = await exec(`xcrun altool --notarization-info "${requestUUID}"  --username "${developer}" --password "${password}"`)
+			let parts = stdout.split('Status Message: ')
+			if (parts.length === 1) {
+				parts = stdout.split('Status: ')
+			}
+			parts = parts[1].split('\n')
+			resolve(parts[0])
+		} catch (err) {
+			reject(err)
+		}
+	})
+})
 
 const staple = async (src, executableName) => {
 	const appPath = path.join(src, `${executableName}.app`)
@@ -136,7 +126,6 @@ const staple = async (src, executableName) => {
 			} catch (err) {
 				reject(err)
 			}
-
 		})
 	})
 }
@@ -146,13 +135,13 @@ const createDmg = async (outputInstallerPath) => {
 	try {
 		await fs.access(outputInstallerPath)
 		await fs.unlink(outputInstallerPath)
-	} catch(e) {
+	} catch (e) {
 		// File does not exist
 	}
 	return new Promise((resolve, reject) => {
 		const dmg = appdmg({
-			source: dmgConfigPath,
-			target: outputInstallerPath
+			source : dmgConfigPath,
+			target : outputInstallerPath
 		})
 		dmg.on('finish', resolve)
 		dmg.on('error', reject)
@@ -175,7 +164,7 @@ module.exports = async (src, appPkg, outputInstallerPath, notarizeFlag) => {
 		)
 		// staple the app after notarized
 		await staple(src, appPkg['executable-name'])
-	}	
+	}
 	// crate the dmg, ready to be published
 	await createDmg(outputInstallerPath)
 }

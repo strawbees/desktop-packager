@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const program = require('commander')
 const path = require('path')
-const package = require('./commands/package')
+const packageCommand = require('./commands/package')
 
 program
 	.option('-s, --source <path>', 'bundled application folder')
@@ -18,4 +18,4 @@ const PLATFORM = program.platform || process.platform
 const ARCHITECTURE = program.architecture || process.arch
 const NOTARIZE = program.notarize
 
-package(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE, NOTARIZE)
+packageCommand(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE, NOTARIZE)

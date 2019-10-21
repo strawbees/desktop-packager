@@ -1,4 +1,4 @@
-const zipdir = require('../utils/zipdir')
+const zipdir = require('../../utils/zipdir')
 
 module.exports = async (src, outputInstallerPath) => {
 	console.log('package linux')

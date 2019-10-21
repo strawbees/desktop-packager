@@ -43,14 +43,12 @@ const runResourceHacker = async (dist) => {
 	// arguments of ResourceHacker.exe, we will download our own binary and call
 	// it manually
 	const appPkg = require(path.resolve(dist, 'bundle', 'package.json'))
-	execute(({ exec }) => {
-		return exec(
-			`"${path.resolve(__dirname, 'rh', 'ResourceHacker.exe')}" ` +
+	execute(({ exec }) => exec(
+		`"${path.resolve(__dirname, 'rh', 'ResourceHacker.exe')}" ` +
 			`-open "${path.resolve(dist, 'bundle', `${appPkg['executable-name']}.exe`)}" ` +
 			`-save "${path.resolve(dist, 'bundle', `${appPkg['executable-name']}.exe`)}" ` +
 			'-action addoverwrite ' +
 			`-res "${path.resolve(dist, 'bundle', 'nwjs-assets', 'win32', 'icon.ico')}" ` +
 			'-mask ICONGROUP, IDR_MAINFRAME'
-		)
-	})
+	))
 }

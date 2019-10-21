@@ -16,7 +16,7 @@ const {
 module.exports = async (dist, pkg) => {
 	await fixSymbolicLinks(dist, pkg)
 	await registerUrlScheme(dist, pkg)
- 	await fixFolderPermissions(dist, pkg)
+	await fixFolderPermissions(dist, pkg)
 }
 
 /**
@@ -71,8 +71,8 @@ const registerUrlScheme = async (dist, pkg) => {
 	const plistFile = await fs.readFile(plistPath, 'utf8')
 	const plistObject = plist.parse(plistFile.toString())
 	plistObject.CFBundleURLTypes.push({
-		CFBundleURLName: `${getExecutableName(executableName)} URL`,
-		CFBundleURLSchemes: [getUrlScheme(pkg['url-scheme'])]
+		CFBundleURLName    : `${getExecutableName(executableName)} URL`,
+		CFBundleURLSchemes : [getUrlScheme(pkg['url-scheme'])]
 	})
 	return fs.writeFile(plistPath, plist.build(plistObject))
 }
@@ -88,5 +88,5 @@ const fixFolderPermissions = async (dist, pkg) => {
 		'Resources',
 		'app.nw'
 	)
-	return chmod(folderPath, 0755)
+	return chmod(folderPath, 0o755)
 }
