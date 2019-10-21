@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const program = require('commander')
 const path = require('path')
-const rimraf = require('./utils/rimraf')
 const cpdir = require('./utils/cpdir')
 
 program

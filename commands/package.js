@@ -27,17 +27,17 @@ module.exports = async (src, dist, platform, architecture, notarizeFlag) => {
 	// Absolute path of where should the compressed source code be located
 	const outputSourcePath = `${path.resolve(outputFolder, outputInstallerName)}-src.zip`
 	// Absolute path of where should the manifest file be located
-	const outputManifestPath = path.resolve(outputFolder, `latest.json`)
+	const outputManifestPath = path.resolve(outputFolder, 'latest.json')
 
 	// Make sure output folder exists
-	await fs.mkdir(outputFolder, {recursive: true})
+	await fs.mkdir(outputFolder, { recursive : true })
 
 	// Package app according with platform
-	if (platform == 'win32') {
+	if (platform === 'win32') {
 		const packageWindowsInstaller = require('./win32/package')
 		await packageWindowsInstaller(src, outputInstallerPath)
 	}
-	if (platform == 'darwin') {
+	if (platform === 'darwin') {
 		const packageDarwinDmg = require('./darwin/package')
 		await packageDarwinDmg(
 			src, // Folder containing bundled app
@@ -46,16 +46,17 @@ module.exports = async (src, dist, platform, architecture, notarizeFlag) => {
 			notarizeFlag
 		)
 	}
-	if (platform == 'linux') {
+	if (platform === 'linux') {
 		// Zip bundled app to distribute
-		await packageLinux(src, outputInstallerPath)
+		// const packageLinux = require('./darwin/linux')
+		// await packageLinux(src, outputInstallerPath)
 	}
 
 	await compressSource(src, outputSourcePath)
 	await createManifest(
 		outputManifestPath,
 		appPkg['display-name'],
-		appPkg['version'],
+		appPkg.version,
 		`${outputInstallerName}${addExtension(platform)}`,
 		`${outputInstallerName}-src.zip`,
 	)
@@ -66,15 +67,16 @@ module.exports = async (src, dist, platform, architecture, notarizeFlag) => {
  * @param {String} platform - Current packaging platform
  */
 const addExtension = (platform) => {
-	if (platform == 'win32') {
+	if (platform === 'win32') {
 		return '.exe'
 	}
-	if (platform == 'darwin') {
+	if (platform === 'darwin') {
 		return '.dmg'
 	}
-	if (platform == 'linux') {
+	if (platform === 'linux') {
 		return '.zip'
 	}
+	return '.zip'
 }
 
 /**
@@ -82,24 +84,22 @@ const addExtension = (platform) => {
  * @param {String} src - Source code path.
  * @param {String} outputSourcePath - Where should the compressed file be created
  */
- const compressSource = (src, outputSourcePath) => {
-	// Compress source code
-	return zipdir(src, outputSourcePath, '')
- }
+const compressSource = (src, outputSourcePath) =>
+	zipdir(src, outputSourcePath, '')
 
-const createManifest = (outputManifestPath, displayName, version, installerName, srcName) => {
+const createManifest = (outputManifestPath, name, version, installerName, srcName) => {
 	// Write latest manifest
 	fs.writeFile(
 		outputManifestPath,
 		JSON.stringify({
-			name: displayName,
-			version: version,
-			createdAt: new Date(),
-			installer: {
-				path: installerName
+			name,
+			version,
+			createdAt : new Date(),
+			installer : {
+				path : installerName
 			},
-			src: {
-				path: srcName
+			src : {
+				path : srcName
 			}
 		})
 	)

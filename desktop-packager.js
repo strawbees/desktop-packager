@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 const program = require('commander')
-const path = require('path')
 const pkg = require('./package.json')
 
 program
-	.description(`Packages NWJS application.`)
+	.description('Packages NWJS application.')
 	.version(pkg.version, '-v, --version')
 
 program
