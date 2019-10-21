@@ -42,7 +42,7 @@ module.exports = async (src, dist, platform, architecture, notarizeFlag) => {
 		await packageDarwinDmg(
 			src, // Folder containing bundled app
 			appPkg, // Bundled manifest object (`package.json` of bundled app)
-			outputInstallerPath // Final file path for `dmg`,
+			outputInstallerPath, // Final file path for `dmg`,
 			notarizeFlag
 		)
 	}
