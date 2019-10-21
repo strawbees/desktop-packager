@@ -48,6 +48,9 @@ const notarize = async (bundlePath, outputInstallerPath, executableName, bundleI
 	// Poll information about the resquest
 	let status = ''
 	while (status !== 'Package Approved') {
+		// Start with the delay, as it takes a few seconds for the RequestUUID
+		// to be registered anyway
+		await new Promise((r) => setTimeout(r, 15000))
 		try {
 			status = await fetchNotarizationStatus(requestUUID, developer, password)
 			console.log('Package status:', status)
@@ -57,10 +60,8 @@ const notarize = async (bundlePath, outputInstallerPath, executableName, bundleI
 			if (status === 'Package Invalid') {
 				throw new Error('Could not notarize')
 			}
-			await new Promise((r) => setTimeout(r, 15000))
 		} catch (e) {
 			console.log('Error trying to fetch notarization status:', e)
-			await new Promise((r) => setTimeout(r, 15000))
 		}
 	}
 }
