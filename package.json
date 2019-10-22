@@ -16,6 +16,7 @@
         "strawbees-desktop-packager": "desktop-packager.js",
         "strawbees-desktop-packager-bundle": "desktop-packager-bundle.js",
         "strawbees-desktop-packager-package": "desktop-packager-package.js",
+        "strawbees-desktop-packager-publish": "desktop-packager-publish.js",
         "strawbees-desktop-packager-sign": "desktop-packager-sign.js",
         "strawbees-desktop-packager-cpdir": "desktop-packager-cpdir.js"
     },
