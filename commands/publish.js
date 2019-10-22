@@ -1,5 +1,5 @@
 const path = require('path')
-const execute = require('../utils/execute')
+const s3Publisher = require('@strawbees/s3-publisher')
 
 /**
  * Publishes a specific version (platform x architecture) of a packaged app to
@@ -11,22 +11,17 @@ const execute = require('../utils/execute')
  */
 module.exports = async (src, dist, platform, architecture) => {
 	console.log('publishing', src, dist, platform, architecture)
-
 	// Absolute path of where the pakcaged app should be.
 	const sourceFolder = path.resolve(src, platform, architecture)
 	// S3 path of where the app will be deployed to.
-	const outputFolder = path.resolve(dist, platform, architecture)
+	const outputFolder = `${dist ? `${dist}/` : ''}${platform}/${architecture}/`
 	// publish
-	await runPublisher(sourceFolder, outputFolder)
+	await s3Publisher(
+		process.env.S3_KEY,
+		process.env.S3_SECRET,
+		sourceFolder,
+		outputFolder,
+		process.env.S3_BUCKET,
+		process.env.S3_REGION,
+	)
 }
-
-const runPublisher = async (sourceFolder, outputFolder) => new Promise((resolve, reject) => {
-	execute(async ({ exec }) => {
-		try {
-			await exec(`strawbees-s3-publisher -s ${sourceFolder} -d ${outputFolder}`)
-			resolve()
-		} catch (err) {
-			reject(err)
-		}
-	})
-})
