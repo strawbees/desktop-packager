@@ -8,7 +8,7 @@ program
 	.option('-o, --output <path>', 'packaged app ouput folder')
 	.option('-p, --platform <platform>', 'Specify the platform')
 	.option('-a, --architecture <architecture>', 'Specify the architecture')
-	.option('-n, --notarize <notarize>', 'If should send app for notarization')
+	.option('-n, --notarize', 'If should send app for notarization')
 
 program.parse(process.argv)
 

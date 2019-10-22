@@ -19,18 +19,18 @@ module.exports = async (src, dist, platform, architecture) => {
 	// Source code `package.json` manifest object
 	const pkg = require(path.resolve(src, 'package.json'))
 	// NWB uses a different platform format that merges platform and architecture
-	let nwbPlatform = getNWBPlatform(platform, architecture)
+	const nwbPlatform = getNWBPlatform(platform, architecture)
 	await bundle(src, dist, nwbPlatform, pkg)
 
 	// Each platform will require different steps after the bundle. Those extra
 	// steps are separated into platform specific scripts
-	if (platform == 'win32') {
+	if (platform === 'win32') {
 		const packagePath = path.resolve(dist, 'bundle', 'package.json')
 		await updatePackageManifest(packagePath)
 		const bundleWin32 = require('./win32/bundle')
 		await bundleWin32(dist)
 	}
-	if (platform == 'darwin') {
+	if (platform === 'darwin') {
 		// Bundling for macos is tricky because the generated path is not
 		// predictable, it changes with environment and the `executable-name`
 		// on its `package.json` because of that, we will always keep the
@@ -46,7 +46,7 @@ module.exports = async (src, dist, platform, architecture) => {
 			packagePath, path.resolve(dist, 'bundle', 'package.json')
 		)
 	}
-	if (platform == 'linux') {
+	if (platform === 'linux') {
 		console.log('Nothing to do on linux')
 	}
 }

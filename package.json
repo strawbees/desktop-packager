@@ -1,6 +1,6 @@
 {
     "name": "@strawbees/desktop-packager",
-    "version": "0.7.4",
+    "version": "0.7.5",
     "description": "Command line tool to automate the building, packaging and deploying of Strawbees desktop apps",
     "main": "desktop-packager.js",
     "scripts": {
@@ -16,6 +16,7 @@
         "strawbees-desktop-packager": "desktop-packager.js",
         "strawbees-desktop-packager-bundle": "desktop-packager-bundle.js",
         "strawbees-desktop-packager-package": "desktop-packager-package.js",
+        "strawbees-desktop-packager-publish": "desktop-packager-publish.js",
         "strawbees-desktop-packager-sign": "desktop-packager-sign.js",
         "strawbees-desktop-packager-cpdir": "desktop-packager-cpdir.js"
     },
@@ -24,6 +25,7 @@
     },
     "homepage": "https://github.com/strawbees/desktop-packager#readme",
     "dependencies": {
+        "@strawbees/s3-publisher": "^0.2.0",
         "adm-zip": "^0.4.13",
         "archiver": "^3.0.0",
         "chmodr": "^1.2.0",
