@@ -16,4 +16,11 @@ const ARCHITECTURE = program.architecture || process.arch
 const SOURCE = program.source || path.join('dist', 'versions')
 const OUTPUT = program.output || 'destop-packager'
 
-publish(path.resolve(SOURCE), OUTPUT, PLATFORM, ARCHITECTURE)
+const init = async () => {
+	try {
+		publish(path.resolve(SOURCE), OUTPUT, PLATFORM, ARCHITECTURE)
+	} catch (e) {
+		process.exit(e.code)
+	}
+}
+init()

@@ -17,4 +17,11 @@ const copyDir = async () => {
 	await cpdir(path.resolve(SOURCE), path.resolve(OUTPUT))
 }
 
-copyDir()
+const init = async () => {
+	try {
+		copyDir()
+	} catch (e) {
+		process.exit(e.code)
+	}
+}
+init()

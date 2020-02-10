@@ -16,4 +16,11 @@ const OUTPUT = program.output || './dist'
 const PLATFORM = program.platform || process.platform
 const ARCHITECTURE = program.architecture || process.arch
 
-bundle(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE)
+const init = async () => {
+	try {
+		bundle(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE)
+	} catch (e) {
+		process.exit(e.code)
+	}
+}
+init()

@@ -12,4 +12,11 @@ program.parse(process.argv)
 const SOURCE = program.source || './dist/bundle'
 const PLATFORM = program.platform || process.platform
 
-sign(path.resolve(SOURCE), PLATFORM)
+const init = async () => {
+	try {
+		sign(path.resolve(SOURCE), PLATFORM)
+	} catch (e) {
+		process.exit(e.code)
+	}
+}
+init()

@@ -18,4 +18,11 @@ const PLATFORM = program.platform || process.platform
 const ARCHITECTURE = program.architecture || process.arch
 const NOTARIZE = program.notarize
 
-packageCommand(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE, NOTARIZE)
+const init = async () => {
+	try {
+		packageCommand(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE, NOTARIZE)
+	} catch (e) {
+		process.exit(e.code)
+	}
+}
+init()
