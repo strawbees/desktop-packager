@@ -47,6 +47,7 @@ const notarize = async (bundlePath, outputInstallerPath, executableName, bundleI
 
 	// Poll information about the resquest
 	let status = ''
+	let failCount = 0
 	while (status !== 'Package Approved') {
 		// Start with the delay, as it takes a few seconds for the RequestUUID
 		// to be registered anyway
@@ -58,7 +59,10 @@ const notarize = async (bundlePath, outputInstallerPath, executableName, bundleI
 				break
 			}
 			if (status === 'Package Invalid') {
-				throw new Error('Could not notarize')
+				failCount++
+				if (failCount >= 10) {
+					throw new Error('Could not notarize')
+				}
 			}
 		} catch (e) {
 			if (e.message === 'Could not notarize') {
