@@ -61,6 +61,9 @@ const notarize = async (bundlePath, outputInstallerPath, executableName, bundleI
 				throw new Error('Could not notarize')
 			}
 		} catch (e) {
+			if (e.message === 'Could not notarize') {
+				throw e
+			}
 			console.log('Error trying to fetch notarization status:', e)
 		}
 	}

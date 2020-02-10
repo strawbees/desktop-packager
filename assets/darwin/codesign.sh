@@ -11,8 +11,10 @@ ITEMS=""
 
 FRAMEWORKS_DIR="$APP/Contents"
 if [ -d "$FRAMEWORKS_DIR" ] ; then
-    FRAMEWORKS=$(find "${FRAMEWORKS_DIR}" -depth -type d -name "*.framework" -or -type d -name "*.app" -or -type d -name "*.xpc" -or -name "*.dylib" -or -name "*.bundle" -or -path "*/Helpers/*" | sed -e "s/\(.*\/\(.*\)\.framework\)$/\1\/Versions\/A\/\2/")
-    #
+    # Modified on Feb 2020 to include ALL files, after I started getting errors
+    # saying that the avr-gcc and the autoupdater were not signed.
+    # FRAMEWORKS=$(find "${FRAMEWORKS_DIR}" -depth -type d -name "*.framework" -or -type d -name "*.app" -or -type d -name "*.xpc" -or -name "*.dylib" -or -name "*.bundle" -or -path "*/Helpers/*" | sed -e "s/\(.*\/\(.*\)\.framework\)$/\1\/Versions\/A\/\2/")
+    FRAMEWORKS=$(find "${FRAMEWORKS_DIR}" -depth  -name "*")
     RESULT=$?
     if [[ $RESULT != 0 ]] ; then
         exit 1
