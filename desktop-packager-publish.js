@@ -18,7 +18,7 @@ const OUTPUT = program.output || 'destop-packager'
 
 publish(path.resolve(SOURCE), OUTPUT, PLATFORM, ARCHITECTURE)
 
-process.on('unhandledRejection', (reason) => {
-	console.log('Unhandled Rejection at:', reason.stack || reason)
-	process.exit(1)
+process.on('unhandledRejection', (error) => {
+	console.log('Unhandled Rejection at:', error.stack)
+	process.exit(error.code || 1)
 })

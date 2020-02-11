@@ -19,7 +19,7 @@ const copyDir = async () => {
 
 copyDir()
 
-process.on('unhandledRejection', (reason) => {
-	console.log('Unhandled Rejection at:', reason.stack || reason)
-	process.exit(1)
+process.on('unhandledRejection', (error) => {
+	console.log('Unhandled Rejection at:', error.stack)
+	process.exit(error.code || 1)
 })
