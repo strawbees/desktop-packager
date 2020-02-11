@@ -10,17 +10,13 @@ ITEMS=""
 
 FRAMEWORKS_DIR="$APP/Contents"
 if [ -d "$FRAMEWORKS_DIR" ] ; then
-    # Modified on Feb 2020 to include ALL files, after I started getting errors
-    # saying that the avr-gcc and the autoupdater were not signed.
-    # FRAMEWORKS=$(find "${FRAMEWORKS_DIR}" -depth -type d -name "*.framework" -or -type d -name "*.app" -or -type d -name "*.xpc" -or -name "*.dylib" -or -name "*.bundle" -or -path "*/Helpers/*" | sed -e "s/\(.*\/\(.*\)\.framework\)$/\1\/Versions\/A\/\2/")
-    # FRAMEWORKS=$(find "${FRAMEWORKS_DIR}" -depth -type d -name "*.framework" -or -type d -name "*.app" -or -type d -name "*.xpc" -or -name "*.dylib" -or -name "*.bundle" )
-    FRAMEWORKS=$(find "${FRAMEWORKS_DIR}" -depth  -name "*")
-    RESULT=$?
-    if [[ $RESULT != 0 ]] ; then
-        exit 1
-    fi
-
-    ITEMS="${FRAMEWORKS}"
+    # Find .framework, .app, .xpc, .dylib, .bundle and helpers
+    FRAMEWORKS=$(find "${FRAMEWORKS_DIR}" -depth -type d -name "*.framework" -or -type d -name "*.app" -or -type d -name "*.xpc" -or -name "*.dylib" -or -name "*.bundle" -or -path "*/Helpers/*" | sed -e "s/\(.*\/\(.*\)\.framework\)$/\1\/Versions\/A\/\2/")
+    # Find executables
+    EXECUTABLES=$(find "${FRAMEWORKS_DIR}"  | xargs -I {} file "{}" | grep executable | awk -F':' '{print $1}')
+    # Combine and make sure they are unique
+    ITEMS="${BINARIES}${FRAMEWORKS}"
+    ITEMS=$(echo "$ITEMS" | sort -u)
 fi
 
 echo "Found:"
