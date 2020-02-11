@@ -18,11 +18,9 @@ const PLATFORM = program.platform || process.platform
 const ARCHITECTURE = program.architecture || process.arch
 const NOTARIZE = program.notarize
 
-const init = async () => {
-	try {
-		packageCommand(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE, NOTARIZE)
-	} catch (e) {
-		process.exit(e.code)
-	}
-}
-init()
+packageCommand(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE, NOTARIZE)
+
+process.on('unhandledRejection', (reason) => {
+	console.log('Unhandled Rejection at:', reason.stack || reason)
+	process.exit(1)
+})

@@ -17,11 +17,9 @@ const copyDir = async () => {
 	await cpdir(path.resolve(SOURCE), path.resolve(OUTPUT))
 }
 
-const init = async () => {
-	try {
-		copyDir()
-	} catch (e) {
-		process.exit(e.code)
-	}
-}
-init()
+copyDir()
+
+process.on('unhandledRejection', (reason) => {
+	console.log('Unhandled Rejection at:', reason.stack || reason)
+	process.exit(1)
+})

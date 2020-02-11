@@ -16,11 +16,9 @@ const OUTPUT = program.output || './dist'
 const PLATFORM = program.platform || process.platform
 const ARCHITECTURE = program.architecture || process.arch
 
-const init = async () => {
-	try {
-		bundle(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE)
-	} catch (e) {
-		process.exit(e.code)
-	}
-}
-init()
+bundle(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE)
+
+process.on('unhandledRejection', (reason) => {
+	console.log('Unhandled Rejection at:', reason.stack || reason)
+	process.exit(1)
+})
