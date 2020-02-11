@@ -15,8 +15,8 @@ if [ -d "$FRAMEWORKS_DIR" ] ; then
     # Find executables
     EXECUTABLES=$(find "${FRAMEWORKS_DIR}"  | xargs -I {} file "{}" | grep executable | awk -F':' '{print $1}')
     # Combine and make sure they are unique
-    ITEMS="${EXECUTABLES}${FRAMEWORKS}"
-    ITEMS=$(echo "$ITEMS" | sort -u)
+    ITEMS="${EXECUTABLES}\n${FRAMEWORKS}"
+    ITEMS=$(echo "$ITEMS" | sort -ru)
 fi
 
 echo "Found:"
