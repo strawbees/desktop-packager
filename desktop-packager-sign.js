@@ -12,11 +12,9 @@ program.parse(process.argv)
 const SOURCE = program.source || './dist/bundle'
 const PLATFORM = program.platform || process.platform
 
-const init = async () => {
-	try {
-		sign(path.resolve(SOURCE), PLATFORM)
-	} catch (e) {
-		process.exit(e.code)
-	}
-}
-init()
+sign(path.resolve(SOURCE), PLATFORM)
+
+process.on('unhandledRejection', (reason) => {
+	console.log('Unhandled Rejection at:', reason.stack || reason)
+	process.exit(1)
+})

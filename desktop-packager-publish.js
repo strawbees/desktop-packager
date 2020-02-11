@@ -16,11 +16,9 @@ const ARCHITECTURE = program.architecture || process.arch
 const SOURCE = program.source || path.join('dist', 'versions')
 const OUTPUT = program.output || 'destop-packager'
 
-const init = async () => {
-	try {
-		publish(path.resolve(SOURCE), OUTPUT, PLATFORM, ARCHITECTURE)
-	} catch (e) {
-		process.exit(e.code)
-	}
-}
-init()
+publish(path.resolve(SOURCE), OUTPUT, PLATFORM, ARCHITECTURE)
+
+process.on('unhandledRejection', (reason) => {
+	console.log('Unhandled Rejection at:', reason.stack || reason)
+	process.exit(1)
+})
