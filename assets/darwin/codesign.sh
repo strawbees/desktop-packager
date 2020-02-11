@@ -10,12 +10,14 @@ ITEMS=""
 
 FRAMEWORKS_DIR="$APP/Contents"
 if [ -d "$FRAMEWORKS_DIR" ] ; then
-    # Find .framework, .app, .xpc, .dylib, .bundle and helpers
-    FRAMEWORKS=$(find "${FRAMEWORKS_DIR}" -depth -type d -name "*.framework" -or -type d -name "*.app" -or -type d -name "*.xpc" -or -name "*.dylib" -or -name "*.bundle" -or -path "*/Helpers/*" | sed -e "s/\(.*\/\(.*\)\.framework\)$/\1\/Versions\/A\/\2/")
-    # Find executables
-    EXECUTABLES=$(find "${FRAMEWORKS_DIR}"  | xargs -I {} file "{}" | grep executable | awk -F':' '{print $1}')
-    # Combine and make sure they are unique
-    ITEMS="${EXECUTABLES}\n${FRAMEWORKS}"
+    ## # Find .framework, .app, .xpc, .dylib, .bundle and helpers
+    ## FRAMEWORKS=$(find "${FRAMEWORKS_DIR}" -depth -type d -name "*.framework" -or -type d -name "*.app" -or -type d -name "*.xpc" -or -name "*.dylib" -or -name "*.bundle" -or -path "*/Helpers/*" | sed -e "s/\(.*\/\(.*\)\.framework\)$/\1\/Versions\/A\/\2/")
+    ## # Find executables
+    ## EXECUTABLES=$(find "${FRAMEWORKS_DIR}"  | xargs -I {} file "{}" | grep executable | awk -F':' '{print $1}')
+    ## # Combine and make sure they are unique
+    ## ITEMS="${EXECUTABLES} ${FRAMEWORKS}"
+    FRAMEWORKS=$(find "${FRAMEWORKS_DIR}" -name "*")
+    ITEMS="${FRAMEWORKS}"
     ITEMS=$(echo "$ITEMS" | sort -ru)
 fi
 
@@ -40,6 +42,7 @@ do
 done
 # Restore $IFS.
 IFS=$SAVED_IFS
+echo "Signing '${APP}'"
 codesign --verbose --force --strict --options runtime --timestamp --sign "$APPLE_DEVELOPER_IDENTITY" --entitlements "${SCRIPT_DIR}/neededToRun.entitlements" "$APP"
 echo "-------------------------------------------------------------------------"
 echo "Verifying signature:"
