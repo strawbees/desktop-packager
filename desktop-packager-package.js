@@ -20,7 +20,7 @@ const NOTARIZE = program.notarize
 
 packageCommand(path.resolve(SOURCE), path.resolve(OUTPUT), PLATFORM, ARCHITECTURE, NOTARIZE)
 
-process.on('unhandledRejection', (reason) => {
-	console.log('Unhandled Rejection at:', reason.stack || reason)
-	process.exit(1)
+process.on('unhandledRejection', (error) => {
+	console.log('Unhandled Rejection at:', error.stack)
+	process.exit(error.code || 1)
 })
