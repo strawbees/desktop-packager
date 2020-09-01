@@ -47,9 +47,8 @@ module.exports = async (src, dist, platform, architecture, notarizeFlag) => {
 		)
 	}
 	if (platform === 'linux') {
-		// Zip bundled app to distribute
-		// const packageLinux = require('./darwin/linux')
-		// await packageLinux(src, outputInstallerPath)
+		const packageLinux = require('./linux/package')
+		await packageLinux(src, outputInstallerPath)
 	}
 
 	await compressSource(src, outputSourcePath)
