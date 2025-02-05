@@ -6,3 +6,5 @@ assets/win32/*.exe
 assets/darwin/*.json
 assets/darwin/*.dmg
 !assets/darwin/dmg.json.template
+
+.DS_Store
